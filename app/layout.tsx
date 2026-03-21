@@ -11,6 +11,14 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+export const metadata = {
+  title: "Nomade Home",
+  description: "A home for nomads",
+  icons: {
+    icon: "/alienBABAB.webp",
+  },
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
