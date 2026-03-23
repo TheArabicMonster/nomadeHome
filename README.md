@@ -82,6 +82,7 @@ Caddy expose uniquement le port 443. Les ports ttyd ne sont pas accessibles dire
 ```env
 SESSION_SECRET=...          # clé secrète pour signer les sessions
 HASHED_PASSWORD=...         # mot de passe haché (bcrypt)
+VPS_IP=...                  # Adresse IP du VPS pour le ping
 ```
 
 ### Lancer ttyd
