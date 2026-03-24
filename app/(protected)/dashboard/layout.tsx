@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 const navLinks = [
   { label: "DASHBOARD", href: "/dashboard", enabled: true },
   { label: "TERMINAL", href: "/dashboard/terminal", enabled: true },
+  { label: "ANKI", href: "/dashboard/anki", enabled: true },
   { label: "MANGA FEED", href: "/dashboard/uploads", enabled: true },
   { label: "NETWORK", href: "#", enabled: false },
   { label: "SETTINGS", href: "#", enabled: false },

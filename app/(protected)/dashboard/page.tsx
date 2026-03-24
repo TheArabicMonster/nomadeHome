@@ -1,5 +1,4 @@
 import PingMonitor from "@/components/pingMonitor"
-
 export default function DashboardPage() {
   const statuses = [
     { label: "MAGI-01", value: "ONLINE", ok: true },
