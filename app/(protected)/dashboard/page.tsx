@@ -42,33 +42,33 @@ export default function DashboardPage() {
         }}
       />
 
-      <div className="w-full max-w-xl">
+      <div className="w-full max-w-2xl">
         {/* header */}
-        <div className="mb-6 text-center">
-          <div className="text-[9px] tracking-[0.4em] text-orange-500/40 mb-2">
+        <div className="mb-8 text-center">
+          <div className="text-base tracking-[0.4em] font-bold text-orange-500/50 mb-3">
             SYSTEM STATUS
           </div>
-          <div className="text-5xl font-black tracking-[0.25em] text-orange-500">
+          <div className="text-6xl font-black tracking-[0.25em] text-orange-500">
             SYSTEM STANDBY
           </div>
-          <div className="mt-4 h-px bg-gradient-to-r from-transparent via-orange-500/40 to-transparent" />
+          <div className="mt-6 h-1.5 bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
         </div>
 
         {/* status grid */}
-        <div className="mb-6 grid grid-cols-3 gap-1.5">
+        <div className="mb-8 grid grid-cols-3 gap-2.5">
           {statuses.map(({ label, value, ok }) => (
             <div
               key={label}
-              className="border border-orange-500/15 bg-orange-500/3 p-2"
+              className="border-2 border-orange-500/30 bg-orange-500/8 p-3.5"
             >
-              <div className="text-[9px] tracking-widest text-orange-500/40 mb-0.5">
+              <div className="text-sm font-bold tracking-widest text-orange-500/60 mb-1.5">
                 {label}
               </div>
               <div
-                className={`flex items-center gap-1 text-[10px] font-bold tracking-widest ${ok ? "text-orange-400" : "text-red-400"}`}
+                className={`flex items-center gap-2 text-base font-black tracking-widest ${ok ? "text-orange-400" : "text-red-400"}`}
               >
                 <span
-                  className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${ok ? "bg-orange-400 animate-pulse" : "bg-red-400"}`}
+                  className={`h-2 w-2 rounded-full flex-shrink-0 ${ok ? "bg-orange-400 animate-pulse" : "bg-red-400"}`}
                 />
                 {value}
               </div>
@@ -77,20 +77,20 @@ export default function DashboardPage() {
         </div>
 
         {/* progress bars */}
-        <div className="mb-6 space-y-3">
+        <div className="mb-8 space-y-4">
           {bars.map(({ label, value, percent, bright }) => (
             <div key={label}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] tracking-[0.4em] text-orange-500/40">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-sm font-bold tracking-[0.3em] text-orange-500/60">
                   {label}
                 </span>
-                <span className="text-[10px] font-bold text-orange-400">
+                <span className="text-base font-black text-orange-400">
                   {value}
                 </span>
               </div>
-              <div className="h-1 w-full bg-orange-500/10">
+              <div className="h-2 w-full bg-orange-500/15 rounded-sm">
                 <div
-                  className={bright ? "h-full bg-orange-400" : "h-full bg-orange-500/60"}
+                  className={`rounded-sm transition-all ${bright ? "h-full bg-orange-400" : "h-full bg-orange-500/60"}`}
                   style={{ width: `${percent}%` }}
                 />
               </div>
@@ -102,8 +102,8 @@ export default function DashboardPage() {
         <PingMonitor />
 
         {/* footer */}
-        <div className="border-t border-orange-500/20 pt-3 text-center">
-          <div className="text-[9px] tracking-widest text-orange-500/20">
+        <div className="border-t-2 border-orange-500/30 pt-5 text-center">
+          <div className="text-sm font-bold tracking-widest text-orange-500/30">
             CORE_STATUS: ALL SYSTEMS NOMINAL
           </div>
         </div>

@@ -73,36 +73,36 @@ export default function DeckStudyPage() {
       {/* content */}
       <div className="relative z-0 max-w-2xl mx-auto w-full">
         {/* header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
           <div>
-            <div className="text-[7px] sm:text-[9px] tracking-[0.4em] text-orange-500/40 mb-1">
+            <div className="text-sm sm:text-base tracking-[0.4em] font-bold text-orange-500/50 mb-2">
               STUDY_MODE
             </div>
-            <div className="text-2xl sm:text-3xl font-black tracking-[0.2em] text-orange-500">
+            <div className="text-4xl sm:text-5xl font-black tracking-[0.2em] text-orange-500">
               {deck.name}
             </div>
           </div>
           <button
             onClick={() => router.back()}
-            className="text-[8px] sm:text-[9px] tracking-widest text-orange-500/50 hover:text-orange-500 transition-colors"
+            className="text-sm sm:text-base font-bold tracking-widest text-orange-500/60 hover:text-orange-500 transition-colors"
           >
             [RETURN]
           </button>
         </div>
 
         {/* progress bar */}
-        <div className="mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-[8px] sm:text-[9px] text-orange-500/60">
+        <div className="mb-8">
+          <div className="flex justify-between mb-3">
+            <span className="text-sm sm:text-base font-bold text-orange-500/70">
               PROGRESS
             </span>
-            <span className="text-[8px] sm:text-[9px] text-orange-500/60">
+            <span className="text-sm sm:text-base font-bold text-orange-500/70">
               {currentIndex + 1} / {deck.cards.length}
             </span>
           </div>
-          <div className="h-1 w-full bg-orange-500/10">
+          <div className="h-2 w-full bg-orange-500/15 rounded-sm">
             <div
-              className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-300 rounded-sm"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -111,58 +111,58 @@ export default function DeckStudyPage() {
         {/* card */}
         <div
           onClick={() => setIsFlipped(!isFlipped)}
-          className="mb-8 border-2 border-orange-500/30 bg-orange-500/5 p-6 sm:p-12 cursor-pointer transition-all hover:border-orange-500/60 hover:bg-orange-500/10 min-h-64 sm:min-h-80 flex flex-col items-center justify-center"
+          className="mb-10 border-3 border-orange-500/40 bg-orange-500/8 p-8 sm:p-16 cursor-pointer transition-all hover:border-orange-500/70 hover:bg-orange-500/15 min-h-72 sm:min-h-96 flex flex-col items-center justify-center"
         >
-          <div className="text-[9px] tracking-[0.4em] text-orange-500/40 mb-4 uppercase">
+          <div className="text-base sm:text-lg tracking-[0.3em] font-black text-orange-500/50 mb-6 uppercase">
             {isFlipped ? "ANSWER" : "QUESTION"}
           </div>
           <div className="text-center">
             {isFlipped ? (
-              <div className="text-3xl sm:text-5xl font-bold text-orange-400 mb-4">
+              <div className="text-4xl sm:text-6xl font-black text-orange-400 mb-4">
                 {currentCard.back}
               </div>
             ) : (
-              <div className="text-6xl sm:text-8xl font-black text-orange-500">
+              <div className="text-7xl sm:text-9xl font-black text-orange-500">
                 {currentCard.front}
               </div>
             )}
           </div>
-          <div className="mt-8 text-[8px] sm:text-[9px] text-orange-500/40">
+          <div className="mt-10 text-sm sm:text-base font-bold text-orange-500/50">
             [CLICK TO {isFlipped ? "FLIP_BACK" : "REVEAL"}]
           </div>
         </div>
 
         {/* response buttons */}
         <div className="mb-8">
-          <div className="text-[8px] sm:text-[9px] tracking-[0.4em] text-orange-500/40 mb-3 uppercase">
+          <div className="text-sm sm:text-base tracking-[0.3em] font-bold text-orange-500/60 mb-4 uppercase">
             How well did you know this?
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             <button
               onClick={() => handleResponse("again")}
               disabled={!isFlipped}
-              className="border border-red-500/30 bg-red-500/5 text-red-400 py-2 px-2 text-[8px] sm:text-[9px] font-bold tracking-widest hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="border-2 border-red-500/40 bg-red-500/8 text-red-400 py-3 px-3 text-sm sm:text-base font-black tracking-wide hover:bg-red-500/15 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               AGAIN
             </button>
             <button
               onClick={() => handleResponse("hard")}
               disabled={!isFlipped}
-              className="border border-orange-500/30 bg-orange-500/5 text-orange-400 py-2 px-2 text-[8px] sm:text-[9px] font-bold tracking-widest hover:bg-orange-500/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="border-2 border-orange-500/40 bg-orange-500/8 text-orange-400 py-3 px-3 text-sm sm:text-base font-black tracking-wide hover:bg-orange-500/15 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               HARD
             </button>
             <button
               onClick={() => handleResponse("good")}
               disabled={!isFlipped}
-              className="border border-yellow-500/30 bg-yellow-500/5 text-yellow-400 py-2 px-2 text-[8px] sm:text-[9px] font-bold tracking-widest hover:bg-yellow-500/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="border-2 border-yellow-500/40 bg-yellow-500/8 text-yellow-400 py-3 px-3 text-sm sm:text-base font-black tracking-wide hover:bg-yellow-500/15 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               GOOD
             </button>
             <button
               onClick={() => handleResponse("easy")}
               disabled={!isFlipped}
-              className="border border-green-500/30 bg-green-500/5 text-green-400 py-2 px-2 text-[8px] sm:text-[9px] font-bold tracking-widest hover:bg-green-500/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="border-2 border-green-500/40 bg-green-500/8 text-green-400 py-3 px-3 text-sm sm:text-base font-black tracking-wide hover:bg-green-500/15 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               EASY
             </button>
@@ -170,32 +170,32 @@ export default function DeckStudyPage() {
         </div>
 
         {/* session stats */}
-        <div className="border border-orange-500/20 bg-orange-500/5 p-4">
-          <div className="text-[8px] sm:text-[9px] tracking-[0.4em] text-orange-500/40 mb-3 uppercase">
+        <div className="border-2 border-orange-500/30 bg-orange-500/8 p-5">
+          <div className="text-sm sm:text-base tracking-[0.3em] text-orange-500/70 font-black mb-5 uppercase">
             Session_Stats
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
             <div>
-              <div className="text-[8px] text-orange-500/60 mb-1">AGAIN</div>
-              <div className="text-2xl sm:text-3xl font-bold text-red-400">
+              <div className="text-sm font-bold text-orange-500/70 mb-2">AGAIN</div>
+              <div className="text-3xl sm:text-4xl font-black text-red-400">
                 {sessionStats.again}
               </div>
             </div>
             <div>
-              <div className="text-[8px] text-orange-500/60 mb-1">HARD</div>
-              <div className="text-2xl sm:text-3xl font-bold text-orange-400">
+              <div className="text-sm font-bold text-orange-500/70 mb-2">HARD</div>
+              <div className="text-3xl sm:text-4xl font-black text-orange-400">
                 {sessionStats.hard}
               </div>
             </div>
             <div>
-              <div className="text-[8px] text-orange-500/60 mb-1">GOOD</div>
-              <div className="text-2xl sm:text-3xl font-bold text-yellow-400">
+              <div className="text-sm font-bold text-orange-500/70 mb-2">GOOD</div>
+              <div className="text-3xl sm:text-4xl font-black text-yellow-400">
                 {sessionStats.good}
               </div>
             </div>
             <div>
-              <div className="text-[8px] text-orange-500/60 mb-1">EASY</div>
-              <div className="text-2xl sm:text-3xl font-bold text-green-400">
+              <div className="text-sm font-bold text-orange-500/70 mb-2">EASY</div>
+              <div className="text-3xl sm:text-4xl font-black text-green-400">
                 {sessionStats.easy}
               </div>
             </div>
@@ -203,8 +203,8 @@ export default function DeckStudyPage() {
         </div>
 
         {/* footer */}
-        <div className="border-t border-orange-500/20 mt-8 pt-4 text-center">
-          <div className="text-[8px] sm:text-[9px] tracking-widest text-orange-500/20">
+        <div className="border-t-2 border-orange-500/30 mt-10 pt-5 text-center">
+          <div className="text-sm sm:text-base font-bold tracking-widest text-orange-500/30">
             STUDY_SESSION: ACTIVE
           </div>
         </div>
