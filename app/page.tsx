@@ -173,12 +173,15 @@ function NervPanel() {
         })}
       </div>
 
-      {/* bio signals */}
-      <div className="mb-6 flex flex-col gap-3">
-        <BioSignal pilot="shinji" width={280} height={60} seed={1} />
-        <BioSignal pilot="asuka"  width={280} height={60} seed={2} />
-        <BioSignal pilot="rei"    width={280} height={60} seed={3} />
+      <div>
+        {/* bio signals */}
+        <div className="mb-6 flex flex-col gap-3">
+          <BioSignal pilot="shinji" height={60} seed={1} />
+          <BioSignal pilot="asuka"  height={60} seed={2} />
+          <BioSignal pilot="rei"    height={60} seed={3} />
+        </div>
       </div>
+      
 
       {/* footer */}
       <div className="mt-4 border-t border-orange-500/20 pt-3">

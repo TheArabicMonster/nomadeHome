@@ -106,17 +106,16 @@ function calculateY(
 
 interface BioSignalProps {
   pilot?: PilotKey
-  width?: number
   height?: number
   seed?: number
 }
 
 export function BioSignal({
   pilot = "shinji",
-  width = 280,
   height = 60,
   seed = 42,
 }: BioSignalProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const timeRef = useRef(0)
   const rafRef = useRef<number | null>(null)
@@ -124,9 +123,12 @@ export function BioSignal({
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const wrapper = wrapperRef.current
+    if (!canvas || !wrapper) return
     const ctx = canvas.getContext("2d")
     if (!ctx) return
+
+    const width = wrapper.clientWidth
 
     // HiDPI
     const dpr = window.devicePixelRatio || 1
@@ -175,10 +177,10 @@ export function BioSignal({
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
-  }, [pilot, width, height, seed, profile]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pilot, height, seed, profile]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="relative" style={{ width, fontFamily: "Digital7, monospace" }}>
+    <div ref={wrapperRef} className="relative w-full" style={{ fontFamily: "Digital7, monospace" }}>
       {/* Labels top */}
       <div className="flex justify-between mb-0.5">
         <span className="text-[9px] tracking-[0.3em] text-orange-500/50">
