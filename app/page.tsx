@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { MemoryDump } from "@/components/memory-dump"
+import { BioSignal } from "@/components/bio-signal"
 
 function NervPanel() {
   const [time, setTime] = useState("")
@@ -172,9 +173,12 @@ function NervPanel() {
         })}
       </div>
 
-      {/* data stream */}
-      {/* <MemoryDump /> */}
-      
+      {/* bio signals */}
+      <div className="mb-6 flex flex-col gap-3">
+        <BioSignal pilot="shinji" width={280} height={60} seed={1} />
+        <BioSignal pilot="asuka"  width={280} height={60} seed={2} />
+        <BioSignal pilot="rei"    width={280} height={60} seed={3} />
+      </div>
 
       {/* footer */}
       <div className="mt-4 border-t border-orange-500/20 pt-3">
