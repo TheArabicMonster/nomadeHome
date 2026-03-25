@@ -75,16 +75,40 @@ function NervPanel() {
 
       {/* header */}
       <div className="mb-6 border-b border-orange-500/20 pb-6">
-        <div className="text-xs font-semibold tracking-[0.4em] text-orange-500/60">
+        <div className="text-xs pb-2 font-semibold tracking-[0.4em] text-orange-500/60">
           SPECIAL ORGANIZATION
         </div>
-        <div className="text-5xl font-bold tracking-[-0.05em] text-red-600 leading-none"
-          style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-          N.E.R.V.
-        </div>
-        <div className="mt-1 border-t border-red-600/60 pt-0.5 text-[10px] font-bold tracking-[0.15em] text-red-600/60"
-          style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-          GOD&apos;S IN HIS HEAVEN. ALL&apos;S RIGHT WITH THE WORLD.
+        <div className="flex items-center gap-1">
+          <div className="text-6xl font-bold tracking-[-0.05em] text-red-600 leading-none"
+            style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+            NERV
+          </div>
+          <div className="flex flex-col gap-1 text-lg font-bold tracking-[0.15em] text-black/60"
+            style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+            <div style={{
+                marginLeft: '10px',
+                width: '310px',
+                height: '28px',
+                background: 'red',
+                clipPath: 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: '16px'
+              }}>
+              God&apos;S In His Heaven.
+            </div>
+            <div style={{
+                width: '320px',
+                height: '28px',
+                background: 'red',
+                clipPath: 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: '16px'
+              }}>
+              All&apos;S Right With The World.
+            </div>
+          </div>
         </div>
       </div>
 
