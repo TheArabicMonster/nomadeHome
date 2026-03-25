@@ -128,7 +128,13 @@ function NervPanel() {
 
       {/* status grid */}
       <div className="mb-6 grid grid-cols-3 gap-1.5">
-        {statuses.map(({ label, value, kanji, ok }) => (
+        {statuses.map(({ label, value, kanji, ok }) => {
+          const isNone = value.toLowerCase() === 'none';
+          const isLocked = value.toLowerCase() === 'locked';
+          const statusColor = isNone ? '#6b7280' : ok ? '#64C832' : '#ee3a3ad5';
+          const kanjiColor = isNone ? '#6b728040' : ok ? '#64C83259' : isLocked ? '#ff1a1a99' : '#f8717140';
+          const glowColor = isNone ? 'rgba(107,114,128,0.4)' : ok ? 'rgba(100,200,50,0.5)' : isLocked ? 'rgba(255, 26, 26, 0.56)' : 'rgba(248,113,113,0.5)';
+          return (
           <div
             key={label}
             className="relative border border-orange-500/15 bg-orange-500/3 p-2 pr-8 overflow-hidden"
@@ -137,41 +143,33 @@ function NervPanel() {
               {label}
             </div>
             <div
-              className={`flex items-center gap-1 text-xs font-bold tracking-widest ${ok ? "text-orange-400" : "text-red-400"}`}
+              className="flex items-center gap-1 text-xs font-bold tracking-widest"
+              style={{ color: statusColor }}
             >
               <span
-                className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                  ok
-                    ? "bg-orange-400 animate-pulse"
-                    : alertBlink
-                      ? "bg-red-400"
-                      : "bg-red-900"
-                }`}
+                className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${ok && !isNone ? "animate-pulse" : alertBlink && !isNone ? "bg-red-400" : ""}`}
+                style={{ background: statusColor }}
               />
-              {value}
+              <span style={{ color: statusColor ?? (alertBlink ? '#f87171' : '#f87171') }}>{value}</span>
             </div>
             {/* Kanji — collé à droite, pleine hauteur */}
             <div
-              className={`absolute inset-y-0 right-0 flex items-center justify-center px-[3px] font-black text-base ${
-                ok
-                  ? "text-orange-500/35"
-                  : "text-red-500/40"
-              }`}
+              className="absolute inset-y-0 right-0 flex items-center justify-center px-[3px] font-black text-base"
+              style={{ color: kanjiColor }}
             >
               <span
                 className="[writing-mode:vertical-rl] [letter-spacing:0.05em]"
                 style={{
                   fontFamily: "'Noto Sans JP', 'Hiragino Kaku Gothic Pro', 'MS Gothic', sans-serif",
-                  textShadow: ok
-                    ? "0 0 8px rgba(249,115,22,0.5)"
-                    : "0 0 8px rgba(248,113,113,0.5)",
+                  textShadow: `0 0 8px ${glowColor}`,
                 }}
               >
                 {kanji}
               </span>
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
 
       {/* data stream */}
