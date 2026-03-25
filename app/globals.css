@@ -2,6 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@font-face {
+  font-family: 'Digital7';
+  src: url('/font/digital-7.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal
+};
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -119,6 +126,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    border-radius: 0px !important;
     }
   body {
     @apply bg-background text-foreground;
@@ -126,4 +134,154 @@
   html {
     @apply font-sans;
     }
+}
+
+/* ============================================
+   TACTICAL COMMAND LAYER — DESIGN SYSTEM
+   ============================================ */
+
+@layer base {
+  :root {
+    /* Surface hierarchy */
+    --nerv-surface:               #131313;
+    --nerv-surface-low:           #1C1B1B;
+    --nerv-surface-high:          #2A2A2A;
+    --nerv-surface-lowest:        #0E0E0E;
+    --nerv-surface-variant:       #353535;
+
+    /* Primary palette — Safety Orange */
+    --nerv-primary:               #FFC082;
+    --nerv-primary-container:     #FF9900;
+    --nerv-on-primary-container:  #653A00;
+    --nerv-surface-tint:          #FFB86F;
+
+    /* Secondary — Emergency Red */
+    --nerv-secondary-container:   #FF5540;
+    --nerv-on-secondary-container:#FFFFFF;
+
+    /* Tertiary — Tactical Green */
+    --nerv-tertiary:              #7FE54D;
+
+    /* Text & Outlines */
+    --nerv-on-surface-variant:    #C9A882;
+    --nerv-outline:               #554434;
+    --nerv-outline-variant:       rgba(85, 68, 52, 0.20);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+@layer utilities {
+
+  /* Surfaces */
+  .nerv-surface         { background-color: var(--nerv-surface); }
+  .nerv-surface-low     { background-color: var(--nerv-surface-low); }
+  .nerv-surface-high    { background-color: var(--nerv-surface-high); }
+  .nerv-surface-lowest  { background-color: var(--nerv-surface-lowest); }
+
+  /* Glassmorphism flottant */
+  .nerv-glass {
+    background-color: rgba(53, 53, 53, 0.60);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Glow ambiant (alertes flottantes) */
+  .nerv-glow {
+    box-shadow: 0 0 40px rgba(255, 184, 111, 0.05);
+  }
+
+  /* Hover glow vert — état "System Ready" */
+  .nerv-hover-ready:hover {
+    box-shadow: 0 0 12px rgba(127, 229, 77, 0.5);
+  }
+
+  /* Ghost border */
+  .nerv-ghost-border {
+    border: 1px solid var(--nerv-outline-variant);
+  }
+
+  /* Bouton primaire */
+  .nerv-btn-primary {
+    background-color: var(--nerv-primary-container);
+    color: var(--nerv-on-primary-container);
+    background-image: linear-gradient(135deg, var(--nerv-primary), var(--nerv-primary-container));
+  }
+
+  /* Bouton secondaire */
+  .nerv-btn-secondary {
+    background: transparent;
+    border: 1px solid var(--nerv-primary);
+    color: var(--nerv-primary);
+  }
+
+  /* Input style "bracket" — bordure basse + ticks latéraux */
+  .nerv-input {
+    border: none;
+    border-bottom: 2px solid var(--nerv-outline);
+    background: transparent;
+    box-shadow: -4px 0 0 0 var(--nerv-outline), 4px 0 0 0 var(--nerv-outline);
+    outline: none;
+  }
+  .nerv-input:focus {
+    border-bottom-color: var(--nerv-primary-container);
+    box-shadow: -4px 0 0 0 var(--nerv-primary-container), 4px 0 0 0 var(--nerv-primary-container);
+  }
+
+  /* Warning bar — bande d'urgence pleine largeur */
+  .nerv-warning-bar {
+    background-color: var(--nerv-secondary-container);
+    color: var(--nerv-on-secondary-container);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  /* Bracket accent — coins en L */
+  .nerv-bracket {
+    position: relative;
+  }
+  .nerv-bracket::before,
+  .nerv-bracket::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-color: var(--nerv-primary-container);
+    border-style: solid;
+  }
+  .nerv-bracket::before {
+    top: 0; left: 0;
+    border-width: 2px 0 0 2px;
+  }
+  .nerv-bracket::after {
+    bottom: 0; right: 0;
+    border-width: 0 2px 2px 0;
+  }
+
+  /* Label classification (coin supérieur droit des cards) */
+  .nerv-classification {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--nerv-tertiary);
+  }
+
+  /* Typographie Display */
+  .nerv-display {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.05rem;
+    text-transform: uppercase;
+    color: var(--nerv-primary-container);
+  }
+
+  /* Label metadata */
+  .nerv-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--nerv-on-surface-variant);
+  }
 }
