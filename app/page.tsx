@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { MemoryDump } from "@/components/memory-dump"
 import { NervHexagon } from "components/nerv-hexagone"
 import { BioSignal } from "@/components/bio-signal"
+import { useContainerSize } from "@/hooks/use-container-size"
 
 function NervPanel() {
   const [time, setTime] = useState("")
@@ -197,6 +198,92 @@ function NervPanel() {
   )
 }
 
+function HexGrid() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { width, height } = useContainerSize(containerRef)
+
+  const trailRef = useRef<Map<string, number>>(new Map())
+  const rafRef   = useRef<number | null>(null)
+  const lastTsRef = useRef<number | null>(null)
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0)
+
+  const size    = 50
+  const colStep = size * 0.76
+  const rowStep = size * 0.92
+
+  const cols = width  > 0 ? Math.ceil(width  / colStep) + 2 : 0
+  const rows = height > 0 ? Math.ceil(height / rowStep) + 2 : 0
+
+  const startLoop = useCallback(() => {
+    if (rafRef.current !== null) return
+
+    const tick = (timestamp: number) => {
+      const dt = lastTsRef.current !== null ? timestamp - lastTsRef.current : 16
+      lastTsRef.current = timestamp
+      const decay = dt / 1500
+
+      const trail = trailRef.current
+      let anyActive = false
+
+      for (const [key, val] of trail) {
+        const next = val - decay
+        if (next <= 0.005) {
+          trail.delete(key)
+        } else {
+          trail.set(key, next)
+          anyActive = true
+        }
+      }
+
+      forceUpdate()
+
+      if (anyActive) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        rafRef.current = null
+        lastTsRef.current = null
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+  }, [])
+
+  const handleMouseEnter = useCallback((key: string) => {
+    trailRef.current.set(key, 1.0)
+    startLoop()
+  }, [startLoop])
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+    }
+  }, [])
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 overflow-hidden opacity-[0.12]">
+      {Array.from({ length: cols }, (_, i) => i - 1).map((col) =>
+        Array.from({ length: rows }).map((_, row) => {
+          const key = `${col}-${row}`
+          const intensity = trailRef.current.get(key) ?? 0
+          return (
+            <div
+              key={key}
+              className="absolute"
+              style={{
+                left: col * colStep,
+                top: row * rowStep + (col % 2 === 1 ? rowStep / 2 : 0),
+              }}
+              onMouseEnter={() => handleMouseEnter(key)}
+            >
+              <NervHexagon size={size} intensity={intensity} />
+            </div>
+          )
+        })
+      )}
+    </div>
+  )
+}
+
 function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -226,8 +313,9 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center bg-[#050300] p-10 font-mono">
-      <div className="w-full max-w-[280px]">
+    <div className="relative flex h-full flex-col items-center justify-center bg-[#050300] p-10 font-mono overflow-hidden">
+      <HexGrid />
+      <div className="relative z-10 w-full max-w-[280px]">
         {/* header */}
         <div className="mb-10 text-center">
           <div className="text-xs font-semibold tracking-[0.5em] text-orange-500/60 mb-2">
@@ -275,7 +363,6 @@ function LoginForm() {
             GEHIRN INFORMATION SYSTEMS
           </div>
         </div>
-        <NervHexagon size={80} />
       </div>
     </div>
   )
