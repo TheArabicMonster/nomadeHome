@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { MemoryDump } from "@/components/memory-dump"
+import { NervHexagon } from "components/nerv-hexagone"
 import { BioSignal } from "@/components/bio-signal"
 
 function NervPanel() {
@@ -119,7 +120,7 @@ function NervPanel() {
           SYSTEM TIME
         </div>
         <div className="flex items-baseline leading-none" style={{ fontFamily: "Digital7" }}>
-          <span className="text-9xl tabular-nums text-orange-500">{time}.</span>
+          <span className="text-8xl tabular-nums text-orange-500">{time}.</span>
           <span className="text-6xl tabular-nums text-orange-500">{ms.toString().padStart(3, "0")}</span>
         </div>
         <div className="mt-2 text-xs font-semibold tracking-widest text-orange-500/70">
@@ -173,12 +174,15 @@ function NervPanel() {
         })}
       </div>
 
-      <div>
+      <div className="outline outline-1 outline-orange-500/20 p-4">
+        <div className="text-xs font-semibold tracking-[0.4em] text-orange-500/60 mb-2">
+          NEURAL LINK
+        </div>
         {/* bio signals */}
-        <div className="mb-6 flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
+          <BioSignal pilot="rei"    height={60} seed={3} />
           <BioSignal pilot="shinji" height={60} seed={1} />
           <BioSignal pilot="asuka"  height={60} seed={2} />
-          <BioSignal pilot="rei"    height={60} seed={3} />
         </div>
       </div>
       
@@ -271,6 +275,7 @@ function LoginForm() {
             GEHIRN INFORMATION SYSTEMS
           </div>
         </div>
+        <NervHexagon size={80} />
       </div>
     </div>
   )

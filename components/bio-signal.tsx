@@ -181,32 +181,40 @@ export function BioSignal({
 
   return (
     <div ref={wrapperRef} className="relative w-full" style={{ fontFamily: "Digital7, monospace" }}>
-      {/* Labels top */}
-      <div className="flex justify-between mb-0.5">
-        <span className="text-[9px] tracking-[0.3em] text-orange-500/50">
+      {/* Ligne principale : label vertical + canvas */}
+      <div className="flex">
+        {/* Nom pilote vertical */}
+        <span
+          className="flex items-center justify-center shrink-0"
+          style={{
+            writingMode: "vertical-rl",
+            transform: "rotate(180deg)",
+            fontSize: "9px",
+            letterSpacing: "0.3em",
+            color: "rgba(249,115,22,0.8)",
+            width: "14px",
+          }}
+        >
           {profile.label}
         </span>
-        <span className="text-[9px] tracking-[0.2em] text-orange-500/50">
-          NEURAL LINK
-        </span>
-      </div>
 
-      {/* Canvas */}
-      <div className="relative border border-orange-500/15 overflow-hidden bg-black">
-        <canvas ref={canvasRef} />
+        {/* Canvas */}
+        <div className="relative flex-1 border border-orange-500/15 overflow-hidden bg-black">
+          <canvas ref={canvasRef} />
 
-        {/* Scan line overlay */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)",
-          }}
-        />
+          {/* Scan line overlay */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)",
+            }}
+          />
+        </div>
       </div>
 
       {/* Labels bottom */}
-      <div className="flex justify-between mt-0.5">
+      <div className="flex justify-between mt-0.5 pl-[14px]">
         <span className="text-[9px] tracking-[0.2em] text-orange-500/40">
           SYNC RATE
         </span>
