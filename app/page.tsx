@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useReducer, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { MemoryDump } from "@/components/memory-dump"
 import { NervHexagon } from "components/nerv-hexagone"
@@ -198,12 +198,16 @@ function NervPanel() {
   )
 }
 
-function HexGrid() {
+interface HexGridHandle {
+  handleMouseMove: (clientX: number, clientY: number) => void
+}
+
+const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { width, height } = useContainerSize(containerRef)
 
-  const trailRef = useRef<Map<string, number>>(new Map())
-  const rafRef   = useRef<number | null>(null)
+  const trailRef  = useRef<Map<string, number>>(new Map())
+  const rafRef    = useRef<number | null>(null)
   const lastTsRef = useRef<number | null>(null)
   const [, forceUpdate] = useReducer((x: number) => x + 1, 0)
 
@@ -248,10 +252,19 @@ function HexGrid() {
     rafRef.current = requestAnimationFrame(tick)
   }, [])
 
-  const handleMouseEnter = useCallback((key: string) => {
-    trailRef.current.set(key, 1.0)
-    startLoop()
-  }, [startLoop])
+  useImperativeHandle(ref, () => ({
+    handleMouseMove: (clientX: number, clientY: number) => {
+      if (!containerRef.current) return
+      const rect = containerRef.current.getBoundingClientRect()
+      const x = clientX - rect.left - size / 2
+      const y = clientY - rect.top  - size / 2
+      const col = Math.round(x / colStep)
+      const row = Math.round((y - (col % 2 === 1 ? rowStep / 2 : 0)) / rowStep)
+      const key = `${col}-${row}`
+      trailRef.current.set(key, 1.0)
+      startLoop()
+    },
+  }), [colStep, rowStep, startLoop])
 
   useEffect(() => {
     return () => {
@@ -273,7 +286,6 @@ function HexGrid() {
                 left: col * colStep,
                 top: row * rowStep + (col % 2 === 1 ? rowStep / 2 : 0),
               }}
-              onMouseEnter={() => handleMouseEnter(key)}
             >
               <NervHexagon size={size} intensity={intensity} />
             </div>
@@ -282,13 +294,14 @@ function HexGrid() {
       )}
     </div>
   )
-}
+})
 
 function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const hexGridRef = useRef<HexGridHandle>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -313,8 +326,11 @@ function LoginForm() {
   }
 
   return (
-    <div className="relative flex h-full flex-col items-center justify-center bg-[#050300] p-10 font-mono overflow-hidden">
-      <HexGrid />
+    <div
+      className="relative flex h-full flex-col items-center justify-center bg-[#050300] p-10 font-mono overflow-hidden"
+      onMouseMove={(e) => hexGridRef.current?.handleMouseMove(e.clientX, e.clientY)}
+    >
+      <HexGrid ref={hexGridRef} />
       <div className="relative z-10 w-full max-w-[280px]">
         {/* header */}
         <div className="mb-10 text-center">
