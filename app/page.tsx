@@ -1,6 +1,6 @@
 "use client"
 
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useReducer, useRef, useState } from "react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { MemoryDump } from "@/components/memory-dump"
 import { NervHexagon } from "components/nerv-hexagone"
@@ -215,8 +215,24 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
   const colStep = size * 0.76
   const rowStep = size * 0.92
 
-  const cols = width  > 0 ? Math.ceil(width  / colStep) + 2 : 0
-  const rows = height > 0 ? Math.ceil(height / rowStep) + 2 : 0
+  const { cols, rows, cells } = useMemo(() => {
+    const c = width  > 0 ? Math.ceil(width  / colStep) + 2 : 0
+    const r = height > 0 ? Math.ceil(height / rowStep) + 2 : 0
+
+    const cells: { key: string; left: number; top: number }[] = []
+    for (let col = 0; col < c; col++) {
+      const offset = col % 2 === 1 ? rowStep / 2 : 0
+      for (let row = 0; row < r; row++) {
+        cells.push({
+          key: `${col}-${row}`,
+          left: col * colStep,
+          top: row * rowStep + offset,
+        })
+      }
+    }
+
+    return { cols: c, rows: r, cells }
+  }, [width, height, colStep, rowStep])
 
   const startLoop = useCallback(() => {
     if (rafRef.current !== null) return
@@ -274,24 +290,15 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden opacity-[0.12]">
-      {Array.from({ length: cols }, (_, i) => i).map((col) =>
-        Array.from({ length: rows }).map((_, row) => {
-          const key = `${col}-${row}`
-          const intensity = trailRef.current.get(key) ?? 0
-          return (
-            <div
-              key={key}
-              className="absolute"
-              style={{
-                left: col * colStep,
-                top: row * rowStep + (col % 2 === 1 ? rowStep / 2 : 0),
-              }}
-            >
-              <NervHexagon size={size} intensity={intensity} />
-            </div>
-          )
-        })
-      )}
+      {cells.map(({ key, left, top }) => (
+        <div
+          key={key}
+          className="absolute"
+          style={{ left, top }}
+        >
+          <NervHexagon size={size} intensity={trailRef.current.get(key) ?? 0} />
+        </div>
+      ))}
     </div>
   )
 })

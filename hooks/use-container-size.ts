@@ -1,18 +1,26 @@
 import { useEffect, useRef, useState } from "react"
 
-export function useContainerSize(ref: React.RefObject<HTMLElement | null>): { width: number; height: number } {
-  const [size, setSize] = useState({ width: 0, height: 0 })
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+interface Size {
+  width: number
+  height: number
+}
+
+export function useContainerSize(ref: React.RefObject<HTMLElement | null>): Size {
+  const [size, setSize] = useState<Size>({ width: 0, height: 0 })
+  const rafRef = useRef<number>(0)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
 
-    const update = (width: number, height: number) => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => {
-        setSize({ width, height })
-      }, 50)
+    function commit(width: number, height: number): void {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = requestAnimationFrame(() => {
+        setSize((prev) => {
+          if (prev.width === width && prev.height === height) return prev
+          return { width, height }
+        })
+      })
     }
 
     // Mesure initiale synchrone pour éviter le flash
@@ -21,13 +29,13 @@ export function useContainerSize(ref: React.RefObject<HTMLElement | null>): { wi
 
     const ro = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect
-      update(width, height)
+      commit(width, height)
     })
     ro.observe(el)
 
     return () => {
       ro.disconnect()
-      if (timerRef.current) clearTimeout(timerRef.current)
+      cancelAnimationFrame(rafRef.current)
     }
   }, [ref])
 
