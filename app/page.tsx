@@ -191,7 +191,7 @@ function NervPanel() {
       
 
       {/* footer */}
-      <div className="mt-4 flex-shrink-0 border-t border-orange-500/20 pt-3 -mx-8 px-8">
+      <div className="mt-auto flex-shrink-0 border-t border-orange-500/20 pt-3 -mx-8 px-8">
         <div className="text-[10px] font-medium tracking-widest text-orange-500/40">
           GEHIRN INFORMATION SYSTEMS v2.0 — UNAUTHORIZED ACCESS PROHIBITED
         </div>
@@ -202,15 +202,18 @@ function NervPanel() {
 
 interface HexGridHandle {
   handleMouseMove: (clientX: number, clientY: number) => void
+  triggerError: () => void
 }
 
 const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { width, height } = useContainerSize(containerRef)
 
-  const trailRef  = useRef<Map<string, number>>(new Map())
-  const rafRef    = useRef<number | null>(null)
-  const lastTsRef = useRef<number | null>(null)
+  const trailRef    = useRef<Map<string, number>>(new Map())
+  const errorRef    = useRef<Map<string, number>>(new Map())
+  const rafRef      = useRef<number | null>(null)
+  const lastTsRef   = useRef<number | null>(null)
+  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const [, forceUpdate] = useReducer((x: number) => x + 1, 0)
 
   const size    = 50
@@ -245,16 +248,19 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
       const decay = dt / 1500
 
       const trail = trailRef.current
+      const error = errorRef.current
       let anyActive = false
 
       for (const [key, val] of trail) {
         const next = val - decay
-        if (next <= 0.005) {
-          trail.delete(key)
-        } else {
-          trail.set(key, next)
-          anyActive = true
-        }
+        if (next <= 0.005) trail.delete(key)
+        else { trail.set(key, next); anyActive = true }
+      }
+
+      for (const [key, val] of error) {
+        const next = val - decay * 2.5
+        if (next <= 0.005) error.delete(key)
+        else { error.set(key, next); anyActive = true }
       }
 
       forceUpdate()
@@ -282,11 +288,37 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
       trailRef.current.set(key, 1.0)
       startLoop()
     },
-  }), [colStep, rowStep, startLoop])
+    triggerError: () => {
+      if (!containerRef.current) return
+      // annule les timeouts précédents
+      timeoutsRef.current.forEach(clearTimeout)
+      timeoutsRef.current = []
+      errorRef.current.clear()
+
+      const rect = containerRef.current.getBoundingClientRect()
+      const centerCol = Math.round((rect.width  / 2) / colStep)
+      const centerRow = Math.round((rect.height / 2) / rowStep)
+
+      // calcule la distance max pour normaliser les délais
+      const maxDist = Math.sqrt(centerCol ** 2 + centerRow ** 2) || 1
+
+      cells.forEach(({ key }) => {
+        const [c, r] = key.split("-").map(Number)
+        const dist = Math.sqrt((c - centerCol) ** 2 + (r - centerRow) ** 2)
+        const delay = (dist / maxDist) * 600  // propagation sur 600ms
+        const t = setTimeout(() => {
+          errorRef.current.set(key, 1.0)
+          startLoop()
+        }, delay)
+        timeoutsRef.current.push(t)
+      })
+    },
+  }), [colStep, rowStep, cells, startLoop])
 
   useEffect(() => {
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+      timeoutsRef.current.forEach(clearTimeout)
     }
   }, [])
 
@@ -298,7 +330,10 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
           className="absolute"
           style={{ left, top }}
         >
-          <NervHexagon size={size} intensity={trailRef.current.get(key) ?? 0} />
+          <NervHexagon
+            size={size}
+            intensity={Math.max(trailRef.current.get(key) ?? 0, errorRef.current.get(key) ?? 0)}
+          />
         </div>
       ))}
     </div>
@@ -326,6 +361,7 @@ function LoginForm() {
         router.push("/dashboard")
       } else {
         setError("ACCESS DENIED — INVALID CREDENTIALS")
+        hexGridRef.current?.triggerError()
       }
     } catch {
       setError("CONNECTION ERROR — RETRY")

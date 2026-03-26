@@ -102,7 +102,7 @@ export default function DashboardPage() {
         <PingMonitor />
 
         {/* footer */}
-        <div className="border-t-2 border-orange-500/30 pt-5 text-center">
+        <div className="mt-auto border-t-2 border-orange-500/30 pt-5 text-center">
           <div className="text-sm font-bold tracking-widest text-orange-500/30">
             CORE_STATUS: ALL SYSTEMS NOMINAL
           </div>
