@@ -77,7 +77,7 @@ function NervPanel() {
       />
 
       {/* header */}
-      <div className="mb-6 border-b border-orange-500/20 pb-6">
+      <div className="mb-6 flex-shrink-0 border-b border-orange-500/20 pb-6 -mx-8 px-8">
         <div className="text-xs pb-2 font-semibold tracking-[0.4em] text-orange-500/60">
           SPECIAL ORGANIZATION
         </div>
@@ -86,11 +86,12 @@ function NervPanel() {
             style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             NERV
           </div>
-          <div className="flex flex-col gap-1 text-lg font-bold tracking-[0.15em] text-black/60"
+          <div className="flex flex-col gap-1 text-lg font-bold tracking-[0.15em] text-black/60 flex-1 min-w-0"
             style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             <div style={{
                 marginLeft: '10px',
-                width: '310px',
+                width: '100%',
+                maxWidth: '310px',
                 height: '28px',
                 background: 'red',
                 clipPath: 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)',
@@ -101,7 +102,8 @@ function NervPanel() {
               God&apos;S In His Heaven.
             </div>
             <div style={{
-                width: '320px',
+                width: '100%',
+                maxWidth: '320px',
                 height: '28px',
                 background: 'red',
                 clipPath: 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)',
@@ -116,13 +118,13 @@ function NervPanel() {
       </div>
 
       {/* clock */}
-      <div className="mb-6">
+      <div className="mb-6 flex-shrink-0">
         <div className="text-xs font-semibold tracking-[0.4em] text-orange-500/60 mb-1">
           SYSTEM TIME
         </div>
         <div className="flex items-baseline leading-none" style={{ fontFamily: "Digital7" }}>
-          <span className="text-8xl tabular-nums text-orange-500">{time}.</span>
-          <span className="text-6xl tabular-nums text-orange-500">{ms.toString().padStart(3, "0")}</span>
+          <span className="text-5xl md:text-8xl tabular-nums text-orange-500">{time}.</span>
+          <span className="text-4xl md:text-6xl tabular-nums text-orange-500">{ms.toString().padStart(3, "0")}</span>
         </div>
         <div className="mt-2 text-xs font-semibold tracking-widest text-orange-500/70">
           {date}
@@ -130,7 +132,7 @@ function NervPanel() {
       </div>
 
       {/* status grid */}
-      <div className="mb-6 grid grid-cols-3 gap-1.5">
+      <div className="mb-6 flex-shrink-0 grid grid-cols-3 gap-1.5">
         {statuses.map(({ label, value, kanji, ok }) => {
           const isNone = value.toLowerCase() === 'none';
           const isLocked = value.toLowerCase() === 'locked';
@@ -189,7 +191,7 @@ function NervPanel() {
       
 
       {/* footer */}
-      <div className="mt-4 border-t border-orange-500/20 pt-3">
+      <div className="mt-4 flex-shrink-0 border-t border-orange-500/20 pt-3 -mx-8 px-8">
         <div className="text-[10px] font-medium tracking-widest text-orange-500/40">
           GEHIRN INFORMATION SYSTEMS v2.0 — UNAUTHORIZED ACCESS PROHIBITED
         </div>
@@ -334,11 +336,59 @@ function LoginForm() {
 
   return (
     <div
-      className="relative flex h-full flex-col items-center justify-center bg-[#050300] p-10 font-mono overflow-hidden"
+      className="relative flex h-full flex-col bg-[#050300] font-mono overflow-hidden"
       onMouseMove={(e) => hexGridRef.current?.handleMouseMove(e.clientX, e.clientY)}
     >
       <HexGrid ref={hexGridRef} />
-      <div className="relative z-10 w-full max-w-[280px]">
+
+      {/* Header NERV — mobile uniquement */}
+      <div className="relative z-10 md:hidden flex-shrink-0 bg-black pt-5 pb-0 w-full">
+        <div className="px-6 text-center text-xs pb-2 font-semibold tracking-[0.4em] text-orange-500/60">
+          SPECIAL ORGANIZATION
+        </div>
+        <div className="px-6 flex items-center justify-center gap-1">
+          <div
+            className="text-4xl font-bold tracking-[-0.05em] text-red-600 leading-none"
+            style={{ fontFamily: '"Times New Roman", Times, serif' }}
+          >
+            NERV
+          </div>
+          <div
+            className="flex flex-col gap-1 text-[9px] font-bold tracking-[0.05em] text-black/60"
+            style={{ fontFamily: '"Times New Roman", Times, serif' }}
+          >
+            <div style={{
+              marginLeft: '4px', paddingRight: '8px', height: '16px',
+              background: 'red',
+              clipPath: 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)',
+              display: 'flex', alignItems: 'center', paddingLeft: '8px',
+            }}>
+              God&apos;s In His Heaven.
+            </div>
+            <div style={{
+              paddingRight: '8px', height: '16px',
+              background: 'red',
+              clipPath: 'polygon(3% 0%, 100% 0%, 100% 100%, 0% 100%)',
+              display: 'flex', alignItems: 'center', paddingLeft: '8px',
+            }}>
+              All&apos;s Right With The World.
+            </div>
+          </div>
+        </div>
+        {/* Séparateur vert avec bloom */}
+        <div
+          className="mt-4 w-full"
+          style={{
+            height: '1px',
+            background: '#7FE54D',
+            boxShadow: '0 0 6px #7FE54D, 0 0 16px rgba(127, 229, 77, 0.45)',
+          }}
+        />
+      </div>
+
+      {/* Formulaire — centré dans l'espace restant */}
+      <div className="relative z-10 flex flex-1 items-center justify-center p-6 md:p-10">
+      <div className="w-full max-w-[280px]">
         {/* header */}
         <div className="mb-10 text-center">
           <div className="text-xs font-semibold tracking-[0.5em] text-orange-500/60 mb-2">
@@ -387,17 +437,20 @@ function LoginForm() {
           </div>
         </div>
       </div>
+      </div>
     </div>
   )
 }
 
 export default function Page() {
   return (
-    <div className="flex h-screen overflow-hidden bg-black">
-      <div className="w-[60%]">
+    <div className="flex h-[100dvh] w-full fixed inset-0 overflow-hidden bg-black">
+      {/* NervPanel — hidden on mobile, visible from md breakpoint */}
+      <div className="hidden md:block md:w-[60%] h-full">
         <NervPanel />
       </div>
-      <div className="w-[40%] border-l border-orange-500/20">
+      {/* LoginForm — full screen on mobile, 40% on desktop */}
+      <div className="w-full md:w-[40%] h-full border-l border-orange-500/20">
         <LoginForm />
       </div>
     </div>
