@@ -261,7 +261,7 @@ function HexGrid() {
 
   return (
     <div ref={containerRef} className="absolute inset-0 overflow-hidden opacity-[0.12]">
-      {Array.from({ length: cols }, (_, i) => i - 1).map((col) =>
+      {Array.from({ length: cols }, (_, i) => i).map((col) =>
         Array.from({ length: rows }).map((_, row) => {
           const key = `${col}-${row}`
           const intensity = trailRef.current.get(key) ?? 0
