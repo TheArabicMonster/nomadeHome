@@ -58,6 +58,28 @@ function NervPanel() {
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-black p-8 font-mono select-none">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes irregular-blink {
+            0%, 100% { opacity: 1; }
+            5% { opacity: 0.3; }
+            7% { opacity: 1; }
+            11% { opacity: 1; }
+            12% { opacity: 0.1; }
+            15% { opacity: 1; }
+            30% { opacity: 1; }
+            31% { opacity: 0.4; }
+            34% { opacity: 1; }
+            65% { opacity: 1; }
+            68% { opacity: 0.2; }
+            70% { opacity: 1; }
+          }
+          .animate-irregular {
+            animation: irregular-blink 3.5s infinite;
+          }
+        `
+      }} />
+
       {/* scanlines */}
       <div
         className="pointer-events-none absolute inset-0 z-10"
@@ -133,7 +155,7 @@ function NervPanel() {
 
       {/* status grid */}
       <div className="mb-6 flex-shrink-0 grid grid-cols-3 gap-1.5">
-        {statuses.map(({ label, value, kanji, ok }) => {
+        {statuses.map(({ label, value, kanji, ok }, i) => {
           const isNone = value.toLowerCase() === 'none';
           const isLocked = value.toLowerCase() === 'locked';
           const statusColor = isNone ? '#6b7280' : ok ? '#64C832' : '#ee3a3ad5';
@@ -152,8 +174,11 @@ function NervPanel() {
               style={{ color: statusColor }}
             >
               <span
-                className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${ok && !isNone ? "animate-pulse" : alertBlink && !isNone ? "bg-red-400" : ""}`}
-                style={{ background: statusColor }}
+                className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${ok && !isNone ? "animate-irregular" : alertBlink && !isNone ? "bg-red-400" : ""}`}
+                style={{ 
+                  background: statusColor,
+                  animationDelay: ok && !isNone ? `${i * 0.73}s` : '0s'
+                }}
               />
               <span style={{ color: statusColor ?? (alertBlink ? '#f87171' : '#f87171') }}>{value}</span>
             </div>
