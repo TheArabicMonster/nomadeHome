@@ -174,10 +174,10 @@ function NervPanel() {
               style={{ color: statusColor }}
             >
               <span
-                className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${ok && !isNone ? "animate-irregular" : alertBlink && !isNone ? "bg-red-400" : ""}`}
+                className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${(ok || isLocked) && !isNone ? "animate-irregular" : alertBlink && !isNone ? "bg-red-400" : ""}`}
                 style={{ 
                   background: statusColor,
-                  animationDelay: ok && !isNone ? `${i * 0.73}s` : '0s'
+                  animationDelay: (ok || isLocked) && !isNone ? `${i * 0.73}s` : '0s'
                 }}
               />
               <span style={{ color: statusColor ?? (alertBlink ? '#f87171' : '#f87171') }}>{value}</span>
