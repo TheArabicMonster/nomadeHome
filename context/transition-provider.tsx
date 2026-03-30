@@ -47,24 +47,24 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     // Phase 2 : Remplissage rouge pour opacifier l'écran
     setTimeout(() => {
       setAnimationPhase("filled");
-    }, 400); // 400ms après le début
+    }, 1000); // 400ms après le début
 
     // Phase 3 : On change la page "sous" le rouge (l'écran est tout rouge à ce moment là)
     setTimeout(() => {
       router.push(targetRoute);
-    }, 800); // 800ms après le début
+    }, 1600); // 800ms après le début
 
     // Phase 4 : Disparition des hexagones pour révéler la nouvelle page
     setTimeout(() => {
       setAnimationPhase("fading");
-    }, 900); // On laisse 100ms à React pour bien monter la nouvelle page
+    }, 2400); // On laisse 100ms à React pour bien monter la nouvelle page
 
     // Phase 5 : Remise à zéro
     setTimeout(() => {
       setAnimationPhase("hidden");
       setIsTransitioning(false);
       setOrigin(null);
-    }, 1400); // Fin totale
+    }, 3200); // Fin totale
   }, [isTransitioning, router]);
 
   // --- INTERCEPTION DE LA TOUCHE TAB ---

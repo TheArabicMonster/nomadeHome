@@ -1,8 +1,9 @@
 "use client"
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useTransitionContext } from "@/context/transition-provider"
 import { MemoryDump } from "@/components/memory-dump"
+
 import { NervHexagon } from "components/nerv-hexagone"
 import { BioSignal } from "@/components/bio-signal"
 import { useContainerSize } from "@/hooks/use-container-size"
@@ -89,14 +90,14 @@ function NervPanel() {
         }}
       />
 
-      {/* vignette */}
+      {/* vignette
       <div
         className="pointer-events-none absolute inset-0 z-10"
         style={{
           background:
             "radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%)",
         }}
-      />
+      /> */}
 
       {/* header */}
       <div className="mb-6 flex-shrink-0 border-b border-orange-500/20 pb-6 -mx-8 px-8">
@@ -369,7 +370,7 @@ function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const { triggerTransition } = useTransitionContext()
   const hexGridRef = useRef<HexGridHandle>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -383,7 +384,7 @@ function LoginForm() {
         body: JSON.stringify({ password }),
       })
       if (res.ok) {
-        router.push("/dashboard")
+        triggerTransition("boot", "/dashboard")
       } else {
         setError("ACCESS DENIED — INVALID CREDENTIALS")
         hexGridRef.current?.triggerError()

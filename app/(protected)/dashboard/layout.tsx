@@ -48,14 +48,14 @@ export default function DashboardLayout({
         }}
       />
 
-      {/* vignette */}
+      {/* vignette
       <div
         className="pointer-events-none fixed inset-0 z-50"
         style={{
           background:
             "radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%)",
         }}
-      />
+      /> */}
 
       {/* header */}
       <header className="flex h-14 flex-shrink-0 items-center justify-between border-b-2 border-orange-500/40 bg-black px-6">
