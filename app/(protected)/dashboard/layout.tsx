@@ -3,15 +3,7 @@
 import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-
-const navLinks = [
-  { label: "DASHBOARD", href: "/dashboard", enabled: true },
-  { label: "TERMINAL", href: "/dashboard/terminal", enabled: true },
-  { label: "ANKI", href: "/dashboard/anki", enabled: true },
-  { label: "MANGA FEED", href: "/dashboard/uploads", enabled: true },
-  { label: "NETWORK", href: "#", enabled: false },
-  { label: "SETTINGS", href: "#", enabled: false },
-]
+import { DASHBOARD_NAV_LINKS } from "@/lib/navLinks"
 
 export default function DashboardLayout({
   children,
@@ -93,7 +85,7 @@ export default function DashboardLayout({
 
           {/* nav links */}
           <nav className="flex flex-1 flex-col gap-2 px-6">
-            {navLinks.map(({ label, href, enabled }) => {
+            {DASHBOARD_NAV_LINKS.map(({ label, href, enabled }) => {
               const isActive = enabled && pathname === href
 
               return (

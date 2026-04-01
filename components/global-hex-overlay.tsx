@@ -4,6 +4,7 @@ import React, { useMemo, useRef } from "react";
 import { useTransitionContext } from "@/context/transition-provider";
 import { useContainerSize } from "@/hooks/use-container-size";
 import { NervHexagon } from "@/components/nerv-hexagone";
+import {DASHBOARD_NAV_LINKS} from "@/lib/navLinks";
 
 export function GlobalHexOverlay() {
   const { animationPhase, isNavOpen, navPhase, origin } = useTransitionContext();
@@ -61,7 +62,7 @@ export function GlobalHexOverlay() {
     >
       {cells.map(({ key, left, top, delay }) => (
         <div key={key} className="absolute" style={{ left, top }}>
-          <NervHexagon size={size} status={animationPhase} delay={delay} />
+          <NervHexagon size={size} status={isNavOpen ? "outline" : animationPhase} delay={delay} />
         </div>
       ))}
     </div>
