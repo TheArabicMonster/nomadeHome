@@ -33,16 +33,16 @@ export default function DashboardPage() {
         }}
       />
 
-      {/* vignette */}
+      {/* vignette
       <div
         className="pointer-events-none absolute inset-0 z-10"
         style={{
           background:
             "radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%)",
         }}
-      />
+      /> */}
 
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-2xl bg-black">
         {/* header */}
         <div className="mb-8 text-center">
           <div className="text-base tracking-[0.4em] font-bold text-orange-500/50 mb-3">
@@ -51,6 +51,7 @@ export default function DashboardPage() {
           <div className="text-6xl font-black tracking-[0.25em] text-orange-500">
             SYSTEM STANDBY
           </div>
+          <span className="text-white text-9xl">cocou</span>
           <div className="mt-6 h-1.5 bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
         </div>
 

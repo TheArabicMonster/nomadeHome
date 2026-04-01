@@ -10,6 +10,7 @@ interface NervHexagonProps {
   intensity?: number // Utilisé par l'ancien système (effet de souris)
   status?: HexState  // Utilisé par le nouveau système (cinématique de transition)
   delay?: number     // Utilisé pour la propagation de l'onde
+  darkFill?: boolean // Fond noir forcé pour le mode navigation
 }
 
 export const NervHexagon = React.memo(function NervHexagon({
@@ -17,6 +18,7 @@ export const NervHexagon = React.memo(function NervHexagon({
   intensity,
   status,
   delay = 0,
+  darkFill = false,
 }: NervHexagonProps) {
   // On garde le mode "controlled" (souris) si on passe 'intensity' sans 'status'
   const controlled = intensity !== undefined && status === undefined
@@ -38,7 +40,9 @@ export const NervHexagon = React.memo(function NervHexagon({
         svgClasses = "opacity-0"
         break
       case "outline":
-        statusClasses = "fill-transparent stroke-[#ff1a1a] stroke-[2]"
+        statusClasses = darkFill
+          ? "fill-black stroke-[#ff1a1a] stroke-[2] group-hover:fill-[#5a0000]"
+          : "fill-transparent stroke-[#ff1a1a] stroke-[2]"
         svgClasses = "opacity-100 [filter:drop-shadow(0_0_4px_#ff1a1a)_drop-shadow(0_0_12px_#ff000055)]"
         break
       case "filled":
