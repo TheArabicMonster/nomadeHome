@@ -1,12 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import React, { createContext, useContext, useState, useEffect, useCallback, use } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { HexState } from "@/components/nerv-hexagone"; // Ton type existant !
 
 // Les types de transitions possibles
 export type TransitionType = "boot" | "nav";
 export type Point = { x: number; y: number };
+
+export type NavPhase = "closed" | "display" | "hide";
 
 // L'interface de notre contexte
 interface TransitionContextType {
@@ -15,6 +17,7 @@ interface TransitionContextType {
   mode: TransitionType;
   origin: Point | null;
   isNavOpen: boolean;
+  navPhase: NavPhase;
   triggerTransition: (type: TransitionType, route: string, origin?: Point) => void;
   setIsNavOpen: (isOpen: boolean) => void;
 }
@@ -23,13 +26,14 @@ const TransitionContext = createContext<TransitionContextType | null>(null);
 
 export function TransitionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  
+  const pathname = usePathname();
   // --- ÉTATS GLOBAUX ---
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<HexState>("hidden");
   const [mode, setMode] = useState<TransitionType>("boot");
   const [origin, setOrigin] = useState<Point | null>(null);
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [navPhase, setNavPhase] = useState<NavPhase>("closed");
 
   // --- MOTEUR D'ORCHESTRATION ---
   const triggerTransition = useCallback((type: TransitionType, targetRoute: string, clickOrigin?: Point) => {
@@ -40,7 +44,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     setMode(type);
     setOrigin(clickOrigin || null);
     setIsNavOpen(false); // On ferme le menu de navigation s'il était ouvert
-
+    setNavPhase("closed");
     // Phase 1 : Apparition des contours rouges (propagation de l'onde)
     setAnimationPhase("outline");
 
@@ -73,10 +77,18 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
       // On empêche la touche TAB de faire son comportement par défaut (changer le focus)
       if (e.key === "Tab") {
         console.log("Touche TAB pressée");
+        console.log(pathname);
         e.preventDefault();
-        // On ne peut ouvrir le menu que si on n'est pas déjà en pleine cinématique
-        if (!isTransitioning) {
+        
+        //si on est sur page acceuil, pas prendre en compte la touche tab.
+        if (pathname === "/"){
+          return;
+        }
+
+        // peut ouvrir menu nav seulement si pas sur page acceuil et pas en transition
+        if (!isTransitioning && pathname !== "/") {
           setIsNavOpen((prev) => !prev);
+          setNavPhase((prev) => (prev === "closed" ? "display" : "closed"));
         }
       }
     };
@@ -87,7 +99,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
 
   return (
     <TransitionContext.Provider value={{
-      isTransitioning, animationPhase, mode, origin, isNavOpen, triggerTransition, setIsNavOpen
+      isTransitioning, animationPhase, mode, origin, isNavOpen, navPhase, triggerTransition, setIsNavOpen
     }}>
       {children}
     </TransitionContext.Provider>

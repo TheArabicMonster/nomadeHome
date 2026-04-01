@@ -6,7 +6,7 @@ import { useContainerSize } from "@/hooks/use-container-size";
 import { NervHexagon } from "@/components/nerv-hexagone";
 
 export function GlobalHexOverlay() {
-  const { animationPhase, isNavOpen, origin } = useTransitionContext();
+  const { animationPhase, isNavOpen, navPhase, origin } = useTransitionContext();
   const containerRef = useRef<HTMLDivElement>(null);
   const { width, height } = useContainerSize(containerRef);
 
@@ -49,6 +49,8 @@ export function GlobalHexOverlay() {
     return cellData;
   }, [width, height, colStep, rowStep, origin]);
 
+  console.log("isNavOpen:", isNavOpen);
+  console.log("navPhase:", navPhase);
   return (
     <div
       ref={containerRef}
