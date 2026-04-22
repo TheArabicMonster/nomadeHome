@@ -56,11 +56,15 @@ function getNeighborCoords(col: number, row: number): Array<[number, number]> {
 }
 
 export function GlobalHexOverlay() {
-  const { animationPhase, isNavOpen, navPhase, origin, triggerTransition } = useTransitionContext();
+  const { animationPhase, isNavOpen, navPhase, origin, triggerTransition, isTransitioning } = useTransitionContext();
   const containerRef = useRef<HTMLDivElement>(null);
   const { width, height } = useContainerSize(containerRef);
   const [displaySeed, setDisplaySeed] = useState(1);
   const previousNavPhaseRef = useRef(navPhase);
+
+  // On ne monte les hexagones QUE lorsqu'ils sont nécessaires
+  // (transition en cours OU menu nav ouvert). Sinon, 1250+ SVG inutiles dans le DOM.
+  const shouldRenderCells = isTransitioning || isNavOpen;
 
   useEffect(() => {
     if (navPhase === "display" && previousNavPhaseRef.current !== "display") {
@@ -77,6 +81,8 @@ export function GlobalHexOverlay() {
   const cells = useMemo(() => {
     // On attend d'avoir les dimensions pour calculer la grille
     if (width === 0 || height === 0) return [];
+    // Skip le calcul si rien à afficher
+    if (!shouldRenderCells) return [];
 
     const cols = Math.ceil(width / colStep) + 2;
     const rows = Math.ceil(height / rowStep) + 2;
@@ -106,7 +112,7 @@ export function GlobalHexOverlay() {
       }
     }
     return cellData;
-  }, [width, height, colStep, rowStep, origin]);
+  }, [width, height, colStep, rowStep, origin, shouldRenderCells]);
 
   const displayCells = useMemo(() => {
     if (navPhase !== "display") return cells;
@@ -169,9 +175,19 @@ export function GlobalHexOverlay() {
     return selected;
   }, [cells, navPhase, width, height, displaySeed]);
 
-  const renderedCells = navPhase === "display" ? displayCells : cells;
   const isNavDisplayOpen = isNavOpen && navPhase === "display";
   const navEntryStaggerMs = 30;
+
+  const navCellIndices = useMemo(() => {
+    if (!isNavDisplayOpen) return new Map<string, number>();
+
+    const indices = new Map<string, number>();
+    for (let index = 0; index < displayCells.length; index++) {
+      indices.set(displayCells[index].key, index);
+    }
+
+    return indices;
+  }, [displayCells, isNavDisplayOpen]);
 
   return (
     <>
@@ -207,20 +223,36 @@ export function GlobalHexOverlay() {
         className="fixed inset-0 z-50 overflow-hidden"
         style={{
           pointerEvents: isNavOpen ? "auto" : "none",
+          // Isole le layer de compositing et limite la zone de paint
+          contain: "strict",
+          willChange: shouldRenderCells ? "contents" : "auto",
+          // Filtre global : remplace 2500+ drop-shadow individuels par UN SEUL
+          filter:
+            shouldRenderCells && (animationPhase === "outline" || animationPhase === "filled")
+              ? "drop-shadow(0 0 4px #ff1a1a)"
+              : undefined,
         }}
       >
-        {renderedCells.map(({ key, left, top, delay }, index) => {
-          const navItem = isNavDisplayOpen ? DASHBOARD_NAV_LINKS[index] : undefined;
+        {cells.map(({ key, left, top, delay }) => {
+          const navIndex = navCellIndices.get(key);
+          const navItem = navIndex !== undefined ? DASHBOARD_NAV_LINKS[navIndex] : undefined;
+          const isDisplayCell = navIndex !== undefined;
           const canNavigate = Boolean(navItem?.enabled && navItem.href && navItem.href !== "#");
+          const status = isNavDisplayOpen
+            ? isDisplayCell
+              ? "outline"
+              : "hidden"
+            : animationPhase;
 
           return (
             <div
               key={key}
-              className={`absolute group ${isNavDisplayOpen ? "hex-holo-enter" : ""} ${canNavigate ? "cursor-pointer" : ""}`}
+              className={`absolute group ${isNavDisplayOpen && isDisplayCell ? "hex-holo-enter" : ""} ${canNavigate ? "cursor-pointer" : ""}`}
               style={{
                 left,
                 top,
-                animationDelay: isNavDisplayOpen ? `${index * navEntryStaggerMs}ms` : undefined,
+                animationDelay:
+                  isNavDisplayOpen && navIndex !== undefined ? `${navIndex * navEntryStaggerMs}ms` : undefined,
               }}
               onClick={
                 canNavigate && navItem
@@ -234,9 +266,9 @@ export function GlobalHexOverlay() {
             >
               <NervHexagon
                 size={size}
-                status={isNavOpen ? "outline" : animationPhase}
+                status={status}
                 delay={delay}
-                darkFill={isNavOpen}
+                darkFill={isNavDisplayOpen && isDisplayCell}
               />
 
               {navItem ? (

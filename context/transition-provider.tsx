@@ -40,13 +40,20 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     // Sécurité : ne pas relancer une transition si une est déjà en cours
     if (isTransitioning) return;
 
+    // Prefetch la route cible immédiatement pour que router.push soit quasi-instantané
+    // (évite le pic CPU de chargement RSC pendant que l'anim tourne)
+    try { router.prefetch(targetRoute); } catch {}
+
     setIsTransitioning(true);
     setMode(type);
     setOrigin(clickOrigin || null);
     setIsNavOpen(false); // On ferme le menu de navigation s'il était ouvert
     setNavPhase("closed");
-    // Phase 1 : Apparition des contours rouges (propagation de l'onde)
-    setAnimationPhase("outline");
+    // Phase 1 : reset puis apparition des contours rouges (propagation de l'onde)
+    setAnimationPhase("hidden");
+    requestAnimationFrame(() => {
+      setAnimationPhase("outline");
+    });
 
     // Phase 2 : Remplissage rouge pour opacifier l'écran
     setTimeout(() => {
@@ -55,7 +62,9 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
 
     // Phase 3 : On change la page "sous" le rouge (l'écran est tout rouge à ce moment là)
     setTimeout(() => {
-      router.push(targetRoute);
+      React.startTransition(() => {
+        router.push(targetRoute);
+      });
     }, 1600); // 800ms après le début
 
     // Phase 4 : Disparition des hexagones pour révéler la nouvelle page

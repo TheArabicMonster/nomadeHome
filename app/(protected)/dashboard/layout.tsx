@@ -1,16 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { DASHBOARD_NAV_LINKS } from "@/lib/navLinks"
+import { useRouter } from "next/navigation"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const pathname = usePathname()
   const router = useRouter()
   const [time, setTime] = useState("")
 
@@ -23,11 +20,6 @@ export default function DashboardLayout({
     const id = setInterval(update, 1000)
     return () => clearInterval(id)
   }, [])
-
-  const handleDisconnect = async () => {
-    await fetch("/api/auth/logout", { method: "POST" })
-    router.push("/")
-  }
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-black font-mono">
@@ -68,60 +60,9 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      {/* body */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* sidebar */}
-        <aside className="flex w-56 flex-shrink-0 flex-col border-r-2 border-orange-500/30 bg-[#050300]">
-          {/* sidebar header */}
-          <div className="px-6 pt-6 pb-5">
-            <div className="text-sm tracking-[0.4em] font-bold text-orange-500/50">
-              OPERATOR
-            </div>
-            <div className="text-2xl font-black tracking-[0.3em] text-orange-500">
-              TERMINAL
-            </div>
-            <div className="mt-4 h-1 bg-gradient-to-r from-orange-500/60 to-transparent" />
-          </div>
-
-          {/* nav links */}
-          <nav className="flex flex-1 flex-col gap-2 px-6">
-            {DASHBOARD_NAV_LINKS.map(({ label, href, enabled }) => {
-              const isActive = enabled && pathname === href
-
-              return (
-                <button
-                  key={label}
-                  onClick={() => enabled && router.push(href)}
-                  disabled={!enabled}
-                  className={cn(
-                    "text-left text-sm tracking-[0.2em] font-black py-3 transition-colors",
-                    isActive
-                      ? "border-l-4 border-orange-500 pl-4 text-orange-500"
-                      : enabled
-                        ? "pl-4 text-orange-500/40 hover:text-orange-500/70"
-                        : "pl-4 text-orange-500/15 cursor-not-allowed",
-                  )}
-                >
-                  {label}
-                </button>
-              )
-            })}
-          </nav>
-
-          {/* disconnect */}
-          <div className="px-6 pb-5">
-            <div className="mb-4 h-1 bg-gradient-to-r from-orange-500/60 to-transparent" />
-            <button
-              onClick={handleDisconnect}
-              className="text-sm tracking-[0.2em] font-bold text-red-400/60 transition-colors hover:text-red-400"
-            >
-              DISCONNECT
-            </button>
-          </div>
-        </aside>
-
+      <div className="flex flex-1 min-h-0">
         {/* main content */}
-        <main className="flex-1 overflow-y-auto bg-black">{children}</main>
+        <main className="flex-1 min-h-0 overflow-y-auto bg-black">{children}</main>
       </div>
 
       {/* footer */}

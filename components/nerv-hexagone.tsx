@@ -43,11 +43,13 @@ export const NervHexagon = React.memo(function NervHexagon({
         statusClasses = darkFill
           ? "fill-black stroke-[#ff1a1a] stroke-[2] group-hover:fill-[#5a0000]"
           : "fill-transparent stroke-[#ff1a1a] stroke-[2]"
-        svgClasses = "opacity-100 [filter:drop-shadow(0_0_4px_#ff1a1a)_drop-shadow(0_0_12px_#ff000055)]"
+        // Filtre drop-shadow déplacé sur le conteneur parent (GlobalHexOverlay)
+        // pour passer de 1250+ filtres GPU à un seul → énorme gain de perf.
+        svgClasses = "opacity-100"
         break
       case "filled":
         statusClasses = "fill-[#ff1a1a] stroke-[#ff1a1a] stroke-[2]"
-        svgClasses = "opacity-100 [filter:drop-shadow(0_0_8px_#ff1a1a)_drop-shadow(0_0_24px_#ff0000aa)]"
+        svgClasses = "opacity-100"
         break
       case "fading":
         statusClasses = "fill-[#ff1a1a] stroke-[#ff1a1a] stroke-[2]"
@@ -78,7 +80,7 @@ export const NervHexagon = React.memo(function NervHexagon({
         controlled
           ? undefined
           : status
-          ? `transition-all duration-300 ease-out ${svgClasses}`
+          ? `transition-opacity duration-300 ease-out ${svgClasses}`
           : "group cursor-pointer [filter:drop-shadow(0_0_4px_#ff1a1a)_drop-shadow(0_0_12px_#ff000055)] transition-[filter] duration-700 hover:[filter:drop-shadow(0_0_8px_#ff1a1a)_drop-shadow(0_0_24px_#ff0000aa)]"
       )}
     >
