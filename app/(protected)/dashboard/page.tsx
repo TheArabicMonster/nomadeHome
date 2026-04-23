@@ -1,6 +1,28 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import PingMonitor from "@/components/pingMonitor"
-import {HolographicMap} from "@/components/HolographicMap/HolographicMap"
+// On importe depuis l'index qui fait le next/dynamic({ ssr: false }) —
+// ça extrait three.js / R3F / postprocessing dans un chunk séparé et
+// évite qu'ils soient évalués côté serveur.
+import { HolographicMap } from "@/components/HolographicMap"
+import { useTransitionContext } from "@/context/transition-provider"
+
 export default function DashboardPage() {
+  // On ne monte PAS la carte 3D tant que la transition d'entrée joue :
+  // le setup WebGL + compilation des shaders + parse du .glb bloque le
+  // main thread pendant ~300-800ms, exactement quand l'overlay rouge
+  // doit s'animer (router.push commit à t=1600ms = pleine phase filled).
+  // Une fois la transition terminée, le thread est libre et la 3D peut
+  // s'initialiser sans perturber la cinématique.
+  const { isTransitioning } = useTransitionContext()
+  const [canMountMap, setCanMountMap] = useState(false)
+  useEffect(() => {
+    if (isTransitioning || canMountMap) return
+    const id = setTimeout(() => setCanMountMap(true), 50)
+    return () => clearTimeout(id)
+  }, [isTransitioning, canMountMap])
+
   const statuses = [
     { label: "MAGI-01", value: "ONLINE", ok: true },
     { label: "MAGI-02", value: "ONLINE", ok: true },
@@ -102,15 +124,35 @@ export default function DashboardPage() {
         {/* ping du vps */}
         {/* <PingMonitor /> */}
         
-        {/* Mont Fuji */}
-        <HolographicMap
-          modelUrl="/models/fuji-san.glb"
-          mode="topographic"
-          subject="MT. FUJI"
-          code="GEO-01"
-          modelScale={1}
-          lineSpacing={0.08}
-        /> 
+        {/* Mont Fuji — mount différé après la transition */}
+        {canMountMap ? (
+          <HolographicMap
+            modelUrl="/models/fuji-san.glb"
+            mode="topographic"
+            subject="MT. FUJI"
+            code="GEO-01"
+            modelScale={1}
+            lineSpacing={0.08}
+          />
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "100vh",
+              background: "#000",
+              color: "#ff6a00",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "monospace",
+              fontSize: 12,
+              letterSpacing: "0.2em",
+              opacity: 0.5,
+            }}
+          >
+            STANDBY...
+          </div>
+        )}
 
         {/* Eva-01 */}
         {/* <HolographicMap

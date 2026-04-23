@@ -1,10 +1,9 @@
 "use client"
 
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from "react"
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { useTransitionContext } from "@/context/transition-provider"
 import { MemoryDump } from "@/components/memory-dump"
 
-import { NervHexagon } from "components/nerv-hexagone"
 import { BioSignal } from "@/components/bio-signal"
 import { useContainerSize } from "@/hooks/use-container-size"
 
@@ -101,12 +100,22 @@ function NervPanel() {
 
       {/* header */}
       <div className="mb-6 flex-shrink-0 border-b border-orange-500/20 pb-6 -mx-8 px-8">
-        <div className="text-xs pb-2 font-semibold tracking-[0.4em] text-orange-500/60">
+        <div className="text-xs pb-2 font-semibold tracking-[0.4em] text-orange-500/60"
+          style={{ textShadow: '0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,80,0,0.5), 0 0 45px rgba(255,50,0,0.25)' }}>
           SPECIAL ORGANIZATION
         </div>
         <div className="flex items-center gap-1">
           <div className="text-6xl font-bold tracking-[-0.05em] text-red-600 leading-none"
-            style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+            style={{
+              fontFamily: '"Times New Roman", Times, serif',
+              textShadow: `
+                0 0 4px  rgba(255, 30, 0, 1),
+                0 0 12px rgba(255, 20, 0, 0.9),
+                0 0 25px rgba(220, 0,  0, 0.7),
+                0 0 50px rgba(180, 0,  0, 0.4),
+                0 0 90px rgba(140, 0,  0, 0.2)
+              `,
+            }}>
             NERV
           </div>
           <div className="flex flex-col gap-1 text-lg font-bold tracking-[0.15em] text-black/60 flex-1 min-w-0"
@@ -122,7 +131,9 @@ function NervPanel() {
                 alignItems: 'center',
                 paddingLeft: '16px'
               }}>
-              God&apos;S In His Heaven.
+              <span style={{ textShadow: '0 0 6px rgba(0,0,0,0.8), 0 0 14px rgba(0,0,0,0.6), 0 0 28px rgba(0,0,0,0.4)' }}>
+                God&apos;S In His Heaven.
+              </span>
             </div>
             <div style={{
                 width: '100%',
@@ -134,7 +145,9 @@ function NervPanel() {
                 alignItems: 'center',
                 paddingLeft: '16px'
               }}>
-              All&apos;S Right With The World.
+              <span style={{ textShadow: '0 0 6px rgba(0,0,0,0.8), 0 0 14px rgba(0,0,0,0.6), 0 0 28px rgba(0,0,0,0.4)' }}>
+                All&apos;S Right With The World.
+              </span>
             </div>
           </div>
         </div>
@@ -142,14 +155,32 @@ function NervPanel() {
 
       {/* clock */}
       <div className="mb-6 flex-shrink-0">
-        <div className="text-xs font-semibold tracking-[0.4em] text-orange-500/60 mb-1">
+        <div className="text-xs font-semibold tracking-[0.4em] text-orange-500/60 mb-1"
+          style={{ textShadow: '0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,80,0,0.5), 0 0 45px rgba(255,50,0,0.25)' }}>
           SYSTEM TIME
         </div>
         <div className="flex items-baseline leading-none" style={{ fontFamily: "Digital7" }}>
-          <span className="text-5xl md:text-8xl tabular-nums text-orange-500">{time}.</span>
-          <span className="text-4xl md:text-6xl tabular-nums text-orange-500">{ms.toString().padStart(3, "0")}</span>
+          <span className="text-5xl md:text-8xl tabular-nums text-orange-500" style={{
+            textShadow: `
+              0 0 3px  rgba(255, 160, 0, 1),
+              0 0 8px  rgba(255, 110, 0, 0.95),
+              0 0 18px rgba(255, 80,  0, 0.8),
+              0 0 35px rgba(255, 50,  0, 0.5),
+              0 0 70px rgba(200, 30,  0, 0.25)
+            `,
+          }}>{time}.</span>
+          <span className="text-4xl md:text-6xl tabular-nums text-orange-500" style={{
+            textShadow: `
+              0 0 3px  rgba(255, 160, 0, 1),
+              0 0 8px  rgba(255, 110, 0, 0.95),
+              0 0 18px rgba(255, 80,  0, 0.8),
+              0 0 35px rgba(255, 50,  0, 0.5),
+              0 0 70px rgba(200, 30,  0, 0.25)
+            `,
+          }}>{ms.toString().padStart(3, "0")}</span>
         </div>
-        <div className="mt-2 text-xs font-semibold tracking-widest text-orange-500/70">
+        <div className="mt-2 text-xs font-semibold tracking-widest text-orange-500/70"
+          style={{ textShadow: '0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,80,0,0.5), 0 0 45px rgba(255,50,0,0.25)' }}>
           {date}
         </div>
       </div>
@@ -167,7 +198,8 @@ function NervPanel() {
             key={label}
             className="relative border border-orange-500/15 bg-orange-500/3 p-2 pr-8 overflow-hidden"
           >
-            <div className="text-[10px] font-semibold tracking-widest text-orange-500/60 mb-0.5">
+            <div className="text-[10px] font-semibold tracking-widest text-orange-500/60 mb-0.5"
+              style={{ textShadow: '0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,80,0,0.5), 0 0 45px rgba(255,50,0,0.25)' }}>
               {label}
             </div>
             <div
@@ -176,12 +208,15 @@ function NervPanel() {
             >
               <span
                 className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${(ok || isLocked) && !isNone ? "animate-irregular" : alertBlink && !isNone ? "bg-red-400" : ""}`}
-                style={{ 
+                style={{
                   background: statusColor,
                   animationDelay: (ok || isLocked) && !isNone ? `${i * 0.73}s` : '0s'
                 }}
               />
-              <span style={{ color: statusColor ?? (alertBlink ? '#f87171' : '#f87171') }}>{value}</span>
+              <span style={{
+                color: statusColor ?? (alertBlink ? '#f87171' : '#f87171'),
+                textShadow: `0 0 4px ${glowColor}, 0 0 10px ${glowColor.replace(/[\d.]+\)$/, '0.7)')}, 0 0 22px ${glowColor.replace(/[\d.]+\)$/, '0.45)')}, 0 0 45px ${glowColor.replace(/[\d.]+\)$/, '0.2)')}`,
+              }}>{value}</span>
             </div>
             {/* Kanji — collé à droite, pleine hauteur */}
             <div
@@ -192,7 +227,7 @@ function NervPanel() {
                 className="[writing-mode:vertical-rl] [letter-spacing:0.05em]"
                 style={{
                   fontFamily: "'Noto Sans JP', 'Hiragino Kaku Gothic Pro', 'MS Gothic', sans-serif",
-                  textShadow: `0 0 8px ${glowColor}`,
+                  textShadow: `0 0 4px ${glowColor}, 0 0 12px ${glowColor.replace(/[\d.]+\)$/, '0.8)')}, 0 0 25px ${glowColor.replace(/[\d.]+\)$/, '0.5)')}, 0 0 50px ${glowColor.replace(/[\d.]+\)$/, '0.25)')}`,
                 }}
               >
                 {kanji}
@@ -204,7 +239,8 @@ function NervPanel() {
       </div>
 
       <div className="outline outline-1 outline-orange-500/20 p-4">
-        <div className="text-xs font-semibold tracking-[0.4em] text-orange-500/60 mb-2">
+        <div className="text-xs font-semibold tracking-[0.4em] text-orange-500/60 mb-2"
+          style={{ textShadow: '0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,80,0,0.5), 0 0 45px rgba(255,50,0,0.25)' }}>
           NEURAL LINK
         </div>
         {/* bio signals */}
@@ -218,7 +254,8 @@ function NervPanel() {
 
       {/* footer */}
       <div className="mt-auto flex-shrink-0 border-t border-orange-500/20 pt-3 -mx-8 px-8">
-        <div className="text-[10px] font-medium tracking-widest text-orange-500/40">
+        <div className="text-[10px] font-medium tracking-widest text-orange-500/40"
+          style={{ textShadow: '0 0 4px rgba(255,140,0,0.9), 0 0 10px rgba(255,100,0,0.6), 0 0 22px rgba(255,70,0,0.35), 0 0 45px rgba(200,40,0,0.18)' }}>
           GEHIRN INFORMATION SYSTEMS v2.0 — UNAUTHORIZED ACCESS PROHIBITED
         </div>
       </div>
@@ -240,21 +277,23 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
   const rafRef      = useRef<number | null>(null)
   const lastTsRef   = useRef<number | null>(null)
   const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([])
-  const [, forceUpdate] = useReducer((x: number) => x + 1, 0)
+  // Refs DOM par cellule → mise à jour impérative pendant le fade,
+  // sans déclencher de re-render React (c'était ça qui laggait).
+  const cellDomRef  = useRef<Map<string, HTMLDivElement>>(new Map())
 
   const size    = 50
   const colStep = size * 0.76
   const rowStep = size * 0.92
 
-  const { cols, rows, cells } = useMemo(() => {
+  const cells = useMemo(() => {
     const c = width  > 0 ? Math.ceil(width  / colStep) + 2 : 0
     const r = height > 0 ? Math.ceil(height / rowStep) + 2 : 0
 
-    const cells: { key: string; left: number; top: number }[] = []
+    const out: { key: string; left: number; top: number }[] = []
     for (let col = 0; col < c; col++) {
       const offset = col % 2 === 1 ? rowStep / 2 : 0
       for (let row = 0; row < r; row++) {
-        cells.push({
+        out.push({
           key: `${col}-${row}`,
           left: col * colStep,
           top: row * rowStep + offset,
@@ -262,8 +301,22 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
       }
     }
 
-    return { cols: c, rows: r, cells }
+    return out
   }, [width, height, colStep, rowStep])
+
+  // Nettoie la map de refs quand la grille est reconstruite (resize).
+  useEffect(() => {
+    cellDomRef.current.clear()
+  }, [cells])
+
+  // Callback ref stable : le nœud renseigne sa clé via data-attribute,
+  // évite de recréer une closure par cellule à chaque rendu.
+  const setCellRef = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return
+    const key = el.dataset.hexKey
+    if (!key) return
+    cellDomRef.current.set(key, el)
+  }, [])
 
   const startLoop = useCallback(() => {
     if (rafRef.current !== null) return
@@ -275,23 +328,40 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
 
       const trail = trailRef.current
       const error = errorRef.current
-      let anyActive = false
+      const doms  = cellDomRef.current
+
+      // On collecte les clés touchées avant d'appliquer les styles,
+      // pour éviter d'itérer deux fois sur les maps.
+      const touched = new Set<string>()
 
       for (const [key, val] of trail) {
         const next = val - decay
         if (next <= 0.005) trail.delete(key)
-        else { trail.set(key, next); anyActive = true }
+        else trail.set(key, next)
+        touched.add(key)
       }
 
       for (const [key, val] of error) {
         const next = val - decay * 2.5
         if (next <= 0.005) error.delete(key)
-        else { error.set(key, next); anyActive = true }
+        else error.set(key, next)
+        touched.add(key)
       }
 
-      forceUpdate()
+      // Mise à jour impérative des cellules actives uniquement.
+      // Typiquement 5-30 cellules, pas les 1250 de la grille complète.
+      for (const key of touched) {
+        const el = doms.get(key)
+        if (!el) continue
+        const intensity = Math.max(trail.get(key) ?? 0, error.get(key) ?? 0)
+        if (intensity <= 0.005) {
+          el.style.removeProperty("--i")
+        } else {
+          el.style.setProperty("--i", intensity.toFixed(3))
+        }
+      }
 
-      if (anyActive) {
+      if (trail.size > 0 || error.size > 0) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
         rafRef.current = null
@@ -349,20 +419,39 @@ const HexGrid = forwardRef<HexGridHandle>(function HexGrid(_, ref) {
   }, [])
 
   return (
-    <div ref={containerRef} className="absolute inset-0 overflow-hidden opacity-[0.12]">
-      {cells.map(({ key, left, top }) => (
-        <div
-          key={key}
-          className="absolute"
-          style={{ left, top }}
-        >
-          <NervHexagon
-            size={size}
-            intensity={Math.max(trailRef.current.get(key) ?? 0, errorRef.current.get(key) ?? 0)}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <style jsx global>{`
+        .nerv-grid-cell {
+          position: absolute;
+        }
+        .nerv-grid-cell-svg {
+          filter:
+            drop-shadow(0 0 calc(4px + var(--i, 0) * 4px) #ff1a1a)
+            drop-shadow(0 0 calc(12px + var(--i, 0) * 12px) rgba(255, 0, 0, calc(0.33 + var(--i, 0) * 0.33)));
+          pointer-events: none;
+        }
+        .nerv-grid-cell-poly {
+          fill: rgba(255, 26, 26, var(--i, 0));
+          stroke: #ff1a1a;
+          stroke-width: 2;
+        }
+      `}</style>
+      <div ref={containerRef} className="absolute inset-0 overflow-hidden opacity-[0.12]">
+        {cells.map(({ key, left, top }) => (
+          <div
+            key={key}
+            ref={setCellRef}
+            data-hex-key={key}
+            className="nerv-grid-cell"
+            style={{ left, top }}
+          >
+            <svg width={size} height={size} viewBox="0 0 100 100" className="nerv-grid-cell-svg">
+              <polygon points="25,5 75,5 100,50 75,95 25,95 0,50" className="nerv-grid-cell-poly" />
+            </svg>
+          </div>
+        ))}
+      </div>
+    </>
   )
 })
 
@@ -405,7 +494,8 @@ function LoginForm() {
 
       {/* Header NERV — mobile uniquement */}
       <div className="relative z-10 md:hidden flex-shrink-0 bg-black pt-5 pb-0 w-full">
-        <div className="px-6 text-center text-xs pb-2 font-semibold tracking-[0.4em] text-orange-500/60">
+        <div className="px-6 text-center text-xs pb-2 font-semibold tracking-[0.4em] text-orange-500/60"
+          style={{ textShadow: '0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,80,0,0.5), 0 0 45px rgba(255,50,0,0.25)' }}>
           SPECIAL ORGANIZATION
         </div>
         <div className="px-6 flex items-center justify-center gap-1">
@@ -453,10 +543,19 @@ function LoginForm() {
       <div className="w-full max-w-[280px]">
         {/* header */}
         <div className="mb-10 text-center">
-          <div className="text-xs font-semibold tracking-[0.5em] text-orange-500/60 mb-2">
+          <div className="text-xs font-semibold tracking-[0.5em] text-orange-500/60 mb-2"
+            style={{ textShadow: '0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,90,0,0.5), 0 0 45px rgba(255,60,0,0.25)' }}>
             TERMINAL ACCESS
           </div>
-          <div className="text-2xl font-black tracking-[0.3em] text-orange-500">
+          <div className="text-2xl font-black tracking-[0.3em] text-orange-500" style={{
+            textShadow: `
+              0 0 4px  rgba(255, 140, 0, 1),
+              0 0 10px rgba(255, 100, 0, 0.9),
+              0 0 20px rgba(255, 80,  0, 0.7),
+              0 0 40px rgba(255, 60,  0, 0.4),
+              0 0 80px rgba(255, 40,  0, 0.2)
+            `,
+          }}>
             AUTHENTICATE
           </div>
           <div className="mt-3 h-px bg-gradient-to-r from-transparent via-orange-500/40 to-transparent" />
@@ -464,7 +563,8 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-xs font-semibold tracking-[0.4em] text-orange-500/70">
+            <label className="mb-2 block text-xs font-semibold tracking-[0.4em] text-orange-500/70"
+              style={{ textShadow: '0 0 8px rgba(255,140,0,0.5), 0 0 20px rgba(255,100,0,0.25)' }}>
               ACCESS CODE
             </label>
             <input
@@ -494,7 +594,8 @@ function LoginForm() {
         </form>
 
         <div className="mt-10 text-center">
-          <div className="text-xs font-medium tracking-widest text-orange-500/40">
+          <div className="text-xs font-medium tracking-widest text-orange-500/40"
+            style={{ textShadow: '0 0 4px rgba(255,140,0,0.9), 0 0 10px rgba(255,100,0,0.6), 0 0 22px rgba(255,70,0,0.35), 0 0 45px rgba(200,40,0,0.18)' }}>
             GEHIRN INFORMATION SYSTEMS
           </div>
         </div>

@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTransitionContext } from "@/context/transition-provider";
 import { useContainerSize } from "@/hooks/use-container-size";
-import { NervHexagon } from "@/components/nerv-hexagone";
 import { DASHBOARD_NAV_LINKS } from "@/lib/navLinks";
 import Image from "next/image";
 
@@ -61,6 +60,16 @@ export function GlobalHexOverlay() {
   const { width, height } = useContainerSize(containerRef);
   const [displaySeed, setDisplaySeed] = useState(1);
   const previousNavPhaseRef = useRef(navPhase);
+
+  // triggerTransition du context change d'identité à chaque fois que
+  // `isTransitioning` change (2× par transition). Ça casserait le memo
+  // de CellsLayer. On fige une version stable via ref.
+  const triggerTransitionRef = useRef(triggerTransition);
+  triggerTransitionRef.current = triggerTransition;
+  const stableTriggerTransition = useMemo<typeof triggerTransition>(
+    () => (type, route, origin) => triggerTransitionRef.current(type, route, origin),
+    [],
+  );
 
   // On ne monte les hexagones QUE lorsqu'ils sont nécessaires
   // (transition en cours OU menu nav ouvert). Sinon, 1250+ SVG inutiles dans le DOM.
@@ -189,9 +198,68 @@ export function GlobalHexOverlay() {
     return indices;
   }, [displayCells, isNavDisplayOpen]);
 
+  // État visuel consolidé en un seul attribut sur le parent.
+  // Quand le nav est en phase "display", c'est lui qui dicte le look
+  // (cellules sélectionnées en outline, autres cachées). Sinon, on suit
+  // animationPhase.
+  const overlayState = isNavDisplayOpen ? "nav-display" : animationPhase;
+
   return (
     <>
       <style jsx global>{`
+        /* ==========================================================
+           GRILLE HEXAGONALE — ANIMATIONS PILOTÉES PAR data-phase
+           ==========================================================
+           Les cellules ne passent PLUS par React à chaque changement
+           de phase. Le parent change juste son attribut data-phase,
+           et les sélecteurs CSS ci-dessous propagent les changements
+           via transition-delay: var(--d) (calculé une seule fois par
+           cellule, basé sur la distance à l'origine de l'onde).
+        */
+
+        .hex-overlay .hex-svg {
+          transition: opacity 300ms ease-out var(--d, 0ms);
+          pointer-events: none;
+          width: 100%;
+          height: 100%;
+          display: block;
+        }
+        .hex-overlay .hex-poly {
+          stroke-width: 2;
+          transition:
+            fill 300ms ease-out var(--d, 0ms),
+            stroke 300ms ease-out var(--d, 0ms);
+        }
+
+        /* Phase: hidden — rien de visible */
+        .hex-overlay[data-phase="hidden"] .hex-svg { opacity: 0; }
+        .hex-overlay[data-phase="hidden"] .hex-poly { fill: transparent; stroke: transparent; }
+
+        /* Phase: outline — contours rouges */
+        .hex-overlay[data-phase="outline"] .hex-svg { opacity: 1; }
+        .hex-overlay[data-phase="outline"] .hex-poly { fill: transparent; stroke: #ff1a1a; }
+
+        /* Phase: filled — remplissage rouge plein */
+        .hex-overlay[data-phase="filled"] .hex-svg { opacity: 1; }
+        .hex-overlay[data-phase="filled"] .hex-poly { fill: #ff1a1a; stroke: #ff1a1a; }
+
+        /* Phase: fading — disparition en opacité */
+        .hex-overlay[data-phase="fading"] .hex-svg { opacity: 0; }
+        .hex-overlay[data-phase="fading"] .hex-poly { fill: #ff1a1a; stroke: #ff1a1a; }
+
+        /* Mode: nav-display — cellules non-nav cachées, cellules nav visibles */
+        .hex-overlay[data-phase="nav-display"] .hex-svg { opacity: 0; }
+        .hex-overlay[data-phase="nav-display"] .hex-poly { fill: transparent; stroke: transparent; }
+        .hex-overlay[data-phase="nav-display"] .hex-cell[data-nav-cell] .hex-svg { opacity: 1; }
+        .hex-overlay[data-phase="nav-display"] .hex-cell[data-nav-cell] .hex-poly {
+          fill: #000;
+          stroke: #ff1a1a;
+        }
+        .hex-overlay[data-phase="nav-display"] .hex-cell[data-nav-cell].cursor-pointer:hover .hex-poly {
+          fill: #5a0000;
+        }
+
+        /* Animation d'entrée holographique des cellules nav. */
         @keyframes hex-holo-enter {
           0% {
             opacity: 0;
@@ -209,7 +277,6 @@ export function GlobalHexOverlay() {
             filter: brightness(1) saturate(1);
           }
         }
-
         .hex-holo-enter {
           animation-name: hex-holo-enter;
           animation-duration: 460ms;
@@ -220,7 +287,8 @@ export function GlobalHexOverlay() {
 
       <div
         ref={containerRef}
-        className="fixed inset-0 z-50 overflow-hidden"
+        data-phase={overlayState}
+        className="hex-overlay fixed inset-0 z-50 overflow-hidden"
         style={{
           pointerEvents: isNavOpen ? "auto" : "none",
           // Isole le layer de compositing et limite la zone de paint
@@ -233,59 +301,98 @@ export function GlobalHexOverlay() {
               : undefined,
         }}
       >
-        {cells.map(({ key, left, top, delay }) => {
-          const navIndex = navCellIndices.get(key);
-          const navItem = navIndex !== undefined ? DASHBOARD_NAV_LINKS[navIndex] : undefined;
-          const isDisplayCell = navIndex !== undefined;
-          const canNavigate = Boolean(navItem?.enabled && navItem.href && navItem.href !== "#");
-          const status = isNavDisplayOpen
-            ? isDisplayCell
-              ? "outline"
-              : "hidden"
-            : animationPhase;
-
-          return (
-            <div
-              key={key}
-              className={`absolute group ${isNavDisplayOpen && isDisplayCell ? "hex-holo-enter" : ""} ${canNavigate ? "cursor-pointer" : ""}`}
-              style={{
-                left,
-                top,
-                animationDelay:
-                  isNavDisplayOpen && navIndex !== undefined ? `${navIndex * navEntryStaggerMs}ms` : undefined,
-              }}
-              onClick={
-                canNavigate && navItem
-                  ? (e) =>
-                      triggerTransition("nav", navItem.href, {
-                        x: e.clientX,
-                        y: e.clientY,
-                      })
-                  : undefined
-              }
-            >
-              <NervHexagon
-                size={size}
-                status={status}
-                delay={delay}
-                darkFill={isNavDisplayOpen && isDisplayCell}
-              />
-
-              {navItem ? (
-                <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-                  <Image
-                    src={navItem.icon}
-                    alt={navItem.label}
-                    width={20}
-                    height={20}
-                    className="opacity-95 [filter:brightness(0)_invert(1)_drop-shadow(0_0_6px_rgba(255,80,80,0.45))]"
-                  />
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
+        <CellsLayer
+          cells={cells}
+          size={size}
+          navIndices={navCellIndices}
+          isNavDisplayOpen={isNavDisplayOpen}
+          navEntryStaggerMs={navEntryStaggerMs}
+          triggerTransition={stableTriggerTransition}
+        />
       </div>
     </>
   );
 }
+
+// -----------------------------------------------------------------------
+// CellsLayer — rendu des cellules isolé dans un composant mémoïsé.
+// Il ne dépend PAS de animationPhase. Les phases sont propagées via le
+// data-phase du parent et des sélecteurs CSS, donc ce composant ne
+// re-render qu'au resize, changement d'origine, ou passage en mode nav.
+// -----------------------------------------------------------------------
+type CellsLayerProps = {
+  cells: Cell[];
+  size: number;
+  navIndices: Map<string, number>;
+  isNavDisplayOpen: boolean;
+  navEntryStaggerMs: number;
+  triggerTransition: ReturnType<typeof useTransitionContext>["triggerTransition"];
+};
+
+const CellsLayer = React.memo(function CellsLayer({
+  cells,
+  size,
+  navIndices,
+  isNavDisplayOpen,
+  navEntryStaggerMs,
+  triggerTransition,
+}: CellsLayerProps) {
+  return (
+    <>
+      {cells.map(({ key, left, top, delay }) => {
+        const navIndex = navIndices.get(key);
+        const navItem = navIndex !== undefined ? DASHBOARD_NAV_LINKS[navIndex] : undefined;
+        const isDisplayCell = navIndex !== undefined;
+        const canNavigate = Boolean(navItem?.enabled && navItem.href && navItem.href !== "#");
+
+        return (
+          <div
+            key={key}
+            data-nav-cell={isDisplayCell ? "1" : undefined}
+            className={`hex-cell absolute ${
+              isDisplayCell && isNavDisplayOpen ? "hex-holo-enter" : ""
+            } ${canNavigate ? "cursor-pointer" : ""}`}
+            style={
+              {
+                left,
+                top,
+                width: size,
+                height: size,
+                "--d": `${delay}ms`,
+                animationDelay:
+                  isDisplayCell && isNavDisplayOpen && navIndex !== undefined
+                    ? `${navIndex * navEntryStaggerMs}ms`
+                    : undefined,
+              } as React.CSSProperties
+            }
+            onClick={
+              canNavigate && navItem
+                ? (e) =>
+                    triggerTransition("nav", navItem.href, {
+                      x: e.clientX,
+                      y: e.clientY,
+                    })
+                : undefined
+            }
+          >
+            <svg viewBox="0 0 100 100" className="hex-svg">
+              <polygon points="25,5 75,5 100,50 75,95 25,95 0,50" className="hex-poly" />
+            </svg>
+
+            {navItem ? (
+              <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+                <Image
+                  src={navItem.icon}
+                  alt={navItem.label}
+                  width={20}
+                  height={20}
+                  className="opacity-95 [filter:brightness(0)_invert(1)_drop-shadow(0_0_6px_rgba(255,80,80,0.45))]"
+                />
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </>
+  );
+});

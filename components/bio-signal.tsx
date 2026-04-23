@@ -193,6 +193,7 @@ export function BioSignal({
             letterSpacing: "0.3em",
             color: "rgba(249,115,22,0.8)",
             width: "14px",
+            textShadow: "0 0 4px rgba(255,160,0,1), 0 0 10px rgba(255,120,0,0.8), 0 0 22px rgba(255,80,0,0.5), 0 0 45px rgba(255,50,0,0.25)",
           }}
         >
           {profile.label}
@@ -215,7 +216,8 @@ export function BioSignal({
 
       {/* Labels bottom */}
       <div className="flex justify-between mt-0.5 pl-[14px]">
-        <span className="text-[9px] tracking-[0.2em] text-orange-500/40">
+        <span className="text-[9px] tracking-[0.2em] text-orange-500/40"
+          style={{ textShadow: "0 0 4px rgba(255,140,0,0.9), 0 0 10px rgba(255,100,0,0.6), 0 0 22px rgba(255,70,0,0.3)" }}>
           SYNC RATE
         </span>
         <SyncCounter profile={profile} seed={seed} />
@@ -252,7 +254,10 @@ function SyncCounter({
     <span
       ref={displayRef}
       className="text-[9px] tracking-[0.2em]"
-      style={{ color: profile.color }}
+      style={{
+        color: profile.color,
+        textShadow: "0 0 4px rgba(160,255,80,1), 0 0 10px rgba(127,229,77,0.9), 0 0 22px rgba(100,200,50,0.6), 0 0 45px rgba(70,160,30,0.3)",
+      }}
     >
       {profile.syncBase === 0
         ? "00.00%"
