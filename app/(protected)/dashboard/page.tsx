@@ -101,21 +101,33 @@ export default function DashboardPage() {
 
         {/* ping du vps */}
         {/* <PingMonitor /> */}
- 
+        
+        {/* Mont Fuji */}
         <HolographicMap
           modelUrl="/models/fuji-san.glb"
           mode="topographic"
           subject="MT. FUJI"
           code="GEO-01"
           modelScale={1}
-          lineSpacing={0.06}
+          lineSpacing={0.08}
         /> 
+
+        {/* Eva-01 */}
         {/* <HolographicMap
           modelUrl="/models/eva-01.glb"
           mode="holographic"
           subject="NEW YORK CITY"
           code="URB-08"
           modelScale={0.5}
+        /> */}
+
+        {/* NYC block */}
+        {/* <HolographicMap
+          modelUrl="/models/new_york_city.glb"
+          mode="holographic"
+          subject="NEW YORK CITY"
+          code="URB-08"
+          modelScale={0.8}
         /> */}
 
         {/* footer */}
