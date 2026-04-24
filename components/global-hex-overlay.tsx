@@ -59,6 +59,7 @@ export function GlobalHexOverlay() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width, height } = useContainerSize(containerRef);
   const [displaySeed, setDisplaySeed] = useState(1);
+  const [focusedNavIndex, setFocusedNavIndex] = useState<number | null>(null);
   const previousNavPhaseRef = useRef(navPhase);
 
   // triggerTransition du context change d'identité à chaque fois que
@@ -187,6 +188,117 @@ export function GlobalHexOverlay() {
   const isNavDisplayOpen = isNavOpen && navPhase === "display";
   const navEntryStaggerMs = 30;
 
+  // Quand le menu s'ouvre, on focus le premier lien navigable.
+  // Quand il se ferme, on reset.
+  useEffect(() => {
+    if (!isNavDisplayOpen) {
+      setFocusedNavIndex(null);
+      return;
+    }
+    const firstEnabled = displayCells.findIndex((_, idx) => {
+      const item = DASHBOARD_NAV_LINKS[idx];
+      return item?.enabled && item.href && item.href !== "#";
+    });
+    setFocusedNavIndex(firstEnabled >= 0 ? firstEnabled : displayCells.length > 0 ? 0 : null);
+  }, [isNavDisplayOpen, displayCells]);
+
+  // Navigation au clavier : flèches pour se déplacer entre les hexagones,
+  // Enter pour valider. On choisit le voisin le plus proche dans la
+  // direction demandée (distance euclidienne pondérée par l'angle).
+  useEffect(() => {
+    if (!isNavDisplayOpen) return;
+
+    const pickNeighbor = (currentIdx: number, dx: number, dy: number): number | null => {
+      const current = displayCells[currentIdx];
+      if (!current) return null;
+
+      let bestForward: {
+        idx: number;
+        score: number;
+      } | null = null;
+
+      let bestWrap: {
+        idx: number;
+        projection: number;
+        perpendicular: number;
+        distance: number;
+      } | null = null;
+
+      for (let i = 0; i < displayCells.length; i++) {
+        if (i === currentIdx) continue;
+
+        const ddx = displayCells[i].left - current.left;
+        const ddy = displayCells[i].top - current.top;
+
+        const projection = ddx * dx + ddy * dy;
+        const perpendicular = Math.abs(ddx * dy - ddy * dx);
+        const distance = Math.sqrt(ddx * ddx + ddy * ddy);
+        if (distance === 0) continue;
+
+        if (projection > 0) {
+          // Priorité 1: cellule dans la direction demandée,
+          // en favorisant l'alignement et la proximité.
+          const score = distance + perpendicular * 1.35;
+          if (!bestForward || score < bestForward.score) {
+            bestForward = { idx: i, score };
+          }
+          continue;
+        }
+
+        // Fallback "wrap": si aucune cellule n'est devant,
+        // on passe au bord opposé dans la même direction.
+        if (
+          !bestWrap ||
+          projection < bestWrap.projection ||
+          (projection === bestWrap.projection && perpendicular < bestWrap.perpendicular) ||
+          (projection === bestWrap.projection &&
+            perpendicular === bestWrap.perpendicular &&
+            distance < bestWrap.distance)
+        ) {
+          bestWrap = { idx: i, projection, perpendicular, distance };
+        }
+      }
+
+      return bestForward?.idx ?? bestWrap?.idx ?? null;
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        setFocusedNavIndex((prev) => {
+          if (prev === null) return prev;
+          const [dx, dy] =
+            e.key === "ArrowUp" ? [0, -1] :
+            e.key === "ArrowDown" ? [0, 1] :
+            e.key === "ArrowLeft" ? [-1, 0] :
+            [1, 0];
+          const next = pickNeighbor(prev, dx, dy);
+          return next ?? prev;
+        });
+        return;
+      }
+
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setFocusedNavIndex((prev) => {
+          if (prev === null) return prev;
+          const navItem = DASHBOARD_NAV_LINKS[prev];
+          const cell = displayCells[prev];
+          if (navItem?.enabled && navItem.href && navItem.href !== "#" && cell) {
+            stableTriggerTransition("nav", navItem.href, {
+              x: cell.left + size / 2,
+              y: cell.top + size / 2,
+            });
+          }
+          return prev;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isNavDisplayOpen, displayCells, stableTriggerTransition]);
+
   const navCellIndices = useMemo(() => {
     if (!isNavDisplayOpen) return new Map<string, number>();
 
@@ -197,6 +309,8 @@ export function GlobalHexOverlay() {
 
     return indices;
   }, [displayCells, isNavDisplayOpen]);
+
+  const focusedCellKey = focusedNavIndex !== null ? displayCells[focusedNavIndex]?.key ?? null : null;
 
   // État visuel consolidé en un seul attribut sur le parent.
   // Quand le nav est en phase "display", c'est lui qui dicte le look
@@ -258,6 +372,23 @@ export function GlobalHexOverlay() {
         .hex-overlay[data-phase="nav-display"] .hex-cell[data-nav-cell].cursor-pointer:hover .hex-poly {
           fill: #5a0000;
         }
+        /* Cellule focus clavier activable : rouge vif */
+        .hex-overlay[data-phase="nav-display"] .hex-cell[data-nav-focus="1"][data-nav-actionable="1"] .hex-poly {
+          fill: #7a0000;
+          stroke: #ff4040;
+          stroke-width: 3;
+        }
+        /* Cellule focus clavier non activable : style distinct "verrouillé" */
+        .hex-overlay[data-phase="nav-display"] .hex-cell[data-nav-focus="1"][data-nav-actionable="0"] .hex-poly {
+          fill: #1f0a0a;
+          stroke: #ff9d9d;
+          stroke-width: 3;
+          stroke-dasharray: 7 4;
+        }
+        .hex-overlay[data-phase="nav-display"] .hex-cell[data-nav-focus="1"][data-nav-actionable="0"] img {
+          opacity: 0.62;
+          filter: grayscale(0.2) brightness(0.92);
+        }
 
         /* Animation d'entrée holographique des cellules nav. */
         @keyframes hex-holo-enter {
@@ -308,6 +439,7 @@ export function GlobalHexOverlay() {
           isNavDisplayOpen={isNavDisplayOpen}
           navEntryStaggerMs={navEntryStaggerMs}
           triggerTransition={stableTriggerTransition}
+          focusedCellKey={focusedCellKey}
         />
       </div>
     </>
@@ -327,6 +459,7 @@ type CellsLayerProps = {
   isNavDisplayOpen: boolean;
   navEntryStaggerMs: number;
   triggerTransition: ReturnType<typeof useTransitionContext>["triggerTransition"];
+  focusedCellKey: string | null;
 };
 
 const CellsLayer = React.memo(function CellsLayer({
@@ -336,6 +469,7 @@ const CellsLayer = React.memo(function CellsLayer({
   isNavDisplayOpen,
   navEntryStaggerMs,
   triggerTransition,
+  focusedCellKey,
 }: CellsLayerProps) {
   return (
     <>
@@ -349,6 +483,8 @@ const CellsLayer = React.memo(function CellsLayer({
           <div
             key={key}
             data-nav-cell={isDisplayCell ? "1" : undefined}
+            data-nav-focus={focusedCellKey === key ? "1" : undefined}
+            data-nav-actionable={isDisplayCell ? (canNavigate ? "1" : "0") : undefined}
             className={`hex-cell absolute ${
               isDisplayCell && isNavDisplayOpen ? "hex-holo-enter" : ""
             } ${canNavigate ? "cursor-pointer" : ""}`}

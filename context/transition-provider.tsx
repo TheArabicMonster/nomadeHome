@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, use } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { HexState } from "@/components/nerv-hexagone"; // Ton type existant !
 
@@ -9,6 +9,7 @@ export type TransitionType = "boot" | "nav";
 export type Point = { x: number; y: number };
 
 export type NavPhase = "closed" | "display" | "hide";
+const NAV_HIDE_DURATION_MS = 320;
 
 // L'interface de notre contexte
 interface TransitionContextType {
@@ -27,6 +28,7 @@ const TransitionContext = createContext<TransitionContextType | null>(null);
 export function TransitionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const navHideTimeoutRef = useRef<number | null>(null);
   // --- ÉTATS GLOBAUX ---
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [animationPhase, setAnimationPhase] = useState<HexState>("hidden");
@@ -34,6 +36,33 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
   const [origin, setOrigin] = useState<Point | null>(null);
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [navPhase, setNavPhase] = useState<NavPhase>("closed");
+
+  const clearNavHideTimeout = useCallback(() => {
+    if (navHideTimeoutRef.current !== null) {
+      window.clearTimeout(navHideTimeoutRef.current);
+      navHideTimeoutRef.current = null;
+    }
+  }, []);
+
+  const openNav = useCallback(() => {
+    clearNavHideTimeout();
+    setIsNavOpen(true);
+    requestAnimationFrame(() => {
+      setNavPhase("display");
+    });
+  }, [clearNavHideTimeout]);
+
+  const closeNavWithAnimation = useCallback(() => {
+    if (!isNavOpen && navPhase === "closed") return;
+
+    clearNavHideTimeout();
+    setNavPhase("hide");
+    navHideTimeoutRef.current = window.setTimeout(() => {
+      setNavPhase("closed");
+      setIsNavOpen(false);
+      navHideTimeoutRef.current = null;
+    }, NAV_HIDE_DURATION_MS);
+  }, [clearNavHideTimeout, isNavOpen, navPhase]);
 
   // --- MOTEUR D'ORCHESTRATION ---
   const triggerTransition = useCallback((type: TransitionType, targetRoute: string, clickOrigin?: Point) => {
@@ -44,6 +73,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     // (évite le pic CPU de chargement RSC pendant que l'anim tourne)
     try { router.prefetch(targetRoute); } catch {}
 
+    clearNavHideTimeout();
     setIsTransitioning(true);
     setMode(type);
     setOrigin(clickOrigin || null);
@@ -78,7 +108,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
       setIsTransitioning(false);
       setOrigin(null);
     }, 3200); // Fin totale
-  }, [isTransitioning, router]);
+  }, [clearNavHideTimeout, isTransitioning, router]);
 
   // --- INTERCEPTION DE LA TOUCHE TAB ---
   useEffect(() => {
@@ -96,15 +126,24 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
 
         // peut ouvrir menu nav seulement si pas sur page acceuil et pas en transition
         if (!isTransitioning && pathname !== "/") {
-          setIsNavOpen((prev) => !prev);
-          setNavPhase((prev) => (prev === "closed" ? "display" : "closed"));
+          if (navPhase === "display") {
+            closeNavWithAnimation();
+          } else {
+            openNav();
+          }
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isTransitioning]);
+  }, [closeNavWithAnimation, isTransitioning, navPhase, openNav, pathname]);
+
+  useEffect(() => {
+    return () => {
+      clearNavHideTimeout();
+    };
+  }, [clearNavHideTimeout]);
 
   return (
     <TransitionContext.Provider value={{
